@@ -1,0 +1,20 @@
+# Konfiguracja dla osób wdrażających z linii poleceń (npx wrangler deploy).
+# Przy wdrażaniu przez panel Cloudflare ten plik nie jest potrzebny — patrz INSTRUKCJA.md.
+name = "sosw-panel"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+
+[vars]
+GITHUB_OWNER = "michalgaweksosw-mmg"
+GITHUB_REPO = "www"
+GITHUB_BRANCH = "main"
+ALLOWED_ORIGINS = "https://michalgaweksosw-mmg.github.io"
+
+[[kv_namespaces]]
+binding = "USERS"
+id = "WSTAW_TUTAJ_ID_PRZESTRZENI_KV"
+
+# Sekrety ustaw poleceniami (nie wpisuj ich do tego pliku!):
+#   npx wrangler secret put GITHUB_TOKEN
+#   npx wrangler secret put SESSION_SECRET
+#   npx wrangler secret put SETUP_KEY

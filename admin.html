@@ -4,12 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://raw.githubusercontent.com; connect-src 'self' https://api.github.com; font-src 'self'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://raw.githubusercontent.com; connect-src 'self' https://*.workers.dev; font-src 'self'; base-uri 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Panel administratora — SOSW w Ostrołęce</title>
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/css/style.css">
 <link rel="stylesheet" href="assets/css/admin.css">
+<script src="assets/js/admin-config.js" defer></script>
+<script src="assets/js/vendor/qrcode.js" defer></script>
 <script src="assets/js/aktualnosci.js" defer></script>
 <script src="assets/js/admin.js" defer></script>
 </head>
@@ -24,6 +26,7 @@
   <nav class="a-gora__zakladki" aria-label="Sekcje panelu" hidden>
     <a href="#aktualnosci" data-zakladka="aktualnosci">Aktualności</a>
     <a href="#zdjecia" data-zakladka="zdjecia">Zdjęcia</a>
+    <a href="#redaktorzy" data-zakladka="redaktorzy">Redaktorzy</a>
   </nav>
   <div class="a-gora__konto" hidden>
     <a href="index.html" target="_blank" rel="noopener">Zobacz stronę</a>
@@ -38,40 +41,93 @@
   <section class="a-logowanie" id="ekran-logowania" aria-labelledby="log-tytul">
     <div class="a-karta a-logowanie__karta">
       <h1 id="log-tytul">Zaloguj się do panelu</h1>
-      <p>Panel zapisuje wpisy i zdjęcia bezpośrednio w repozytorium strony na GitHubie. Do logowania potrzebny jest <strong>token dostępu</strong> — działa jak hasło tylko do tej strony.</p>
+
+      <div id="brak-konfiguracji" hidden>
+        <p class="a-blad">Panel nie jest jeszcze połączony z serwerem logowania. Administrator strony musi wdrożyć serwer (Cloudflare Worker) i wpisać jego adres w pliku <code>assets/js/admin-config.js</code>. Instrukcja krok po kroku jest w repozytorium: <code>_panel-serwer/INSTRUKCJA.md</code>.</p>
+        <p>Losowe klucze do konfiguracji serwera (wygenerowane w tej przeglądarce — skopiuj je teraz, nigdzie ich nie zapisujemy):</p>
+        <dl class="a-klucze">
+          <dt>SESSION_SECRET</dt><dd><code id="los-1"></code></dd>
+          <dt>SETUP_KEY (klucz administratora)</dt><dd><code id="los-2"></code></dd>
+        </dl>
+      </div>
 
       <form id="form-logowania" novalidate>
+        <p>Wpisz swój login i aktualny 6-cyfrowy kod z aplikacji <b>Google Authenticator</b> (pozycja „SOSW Ostrołęka”).</p>
         <label class="a-pole">
-          <span>Token dostępu GitHub</span>
-          <span class="a-haslo">
-            <input type="password" id="token" autocomplete="current-password" spellcheck="false" placeholder="github_pat_…" required>
-            <button type="button" class="a-link" id="pokaz-token" aria-pressed="false">Pokaż</button>
-          </span>
+          <span>Login</span>
+          <input id="login" autocomplete="username" autocapitalize="none" spellcheck="false" required>
         </label>
-        <label class="a-check"><input type="checkbox" id="zapamietaj"> Zapamiętaj na tym komputerze <small>(nie zaznaczaj na komputerze współdzielonym)</small></label>
-        <details class="a-zaawansowane">
-          <summary>Repozytorium</summary>
-          <div class="a-wiersz">
-            <label class="a-pole"><span>Właściciel</span><input id="cfg-owner" spellcheck="false"></label>
-            <label class="a-pole"><span>Repozytorium</span><input id="cfg-repo" spellcheck="false"></label>
-            <label class="a-pole"><span>Gałąź</span><input id="cfg-branch" spellcheck="false" placeholder="domyślna"></label>
-          </div>
-        </details>
+        <label class="a-pole">
+          <span>Kod z aplikacji</span>
+          <input id="kod" class="a-kod" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="7" placeholder="000000" required>
+        </label>
         <p class="a-blad" id="blad-logowania" role="alert" hidden></p>
         <button class="btn btn--glowny" type="submit" id="przycisk-logowania">Zaloguj się</button>
       </form>
 
-      <details class="a-pomoc">
-        <summary>Skąd wziąć token? (jednorazowo, ok. 2 minuty)</summary>
-        <ol>
-          <li>Zaloguj się na GitHubie na konto, które ma dostęp do repozytorium strony.</li>
-          <li>Otwórz <a id="link-token" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">formularz nowego tokenu</a> — nazwa i uprawnienie do zapisu wypełnią się same.</li>
-          <li>W sekcji <b>Repository access</b> wybierz <b>Only select repositories</b> i zaznacz repozytorium strony (<code id="nazwa-repo-pomoc">www</code>).</li>
-          <li>Sprawdź, że w <b>Permissions → Repository permissions</b> pozycja <b>Contents</b> ma wartość <b>Read and write</b>.</li>
-          <li>Kliknij <b>Generate token</b>, skopiuj token i wklej go powyżej. Zapisz go w bezpiecznym miejscu — GitHub pokazuje go tylko raz.</li>
-        </ol>
-        <p>Token jest wysyłany wyłącznie do GitHuba. Gdy wygaśnie albo wycieknie, usuń go na GitHubie i utwórz nowy.</p>
-      </details>
+      <div class="a-pomoc">
+        <p><b>Nie masz jeszcze konta?</b> Konto zakłada administrator strony — pokaże Ci kod QR do zeskanowania w aplikacji Google Authenticator.</p>
+        <p><a href="#redaktorzy" id="link-redaktorzy">Jestem administratorem — zarządzaj redaktorami</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= REDAKTORZY ================= -->
+  <section class="a-sekcja" id="ekran-redaktorzy" aria-labelledby="red-tytul" hidden>
+    <div class="a-pasek">
+      <div>
+        <button type="button" class="a-link a-wstecz" id="red-wroc">← Wróć</button>
+        <h1 id="red-tytul">Redaktorzy</h1>
+      </div>
+    </div>
+
+    <div class="a-karta a-red" id="red-klucz-krok">
+      <h2>Klucz administratora</h2>
+      <p>Dodawanie i usuwanie redaktorów wymaga klucza administratora (<code>SETUP_KEY</code> z ustawień serwera panelu). Klucz nie jest nigdzie zapisywany — po zamknięciu karty trzeba go wpisać ponownie.</p>
+      <form id="form-klucz" novalidate>
+        <label class="a-pole"><span>Klucz administratora</span><input type="password" id="klucz-admina" autocomplete="off" spellcheck="false" required></label>
+        <p class="a-blad" id="blad-klucza" role="alert" hidden></p>
+        <button class="btn btn--glowny" type="submit">Dalej</button>
+      </form>
+    </div>
+
+    <div id="red-panel" hidden>
+      <div class="a-red-uklad">
+        <div class="a-karta a-red">
+          <h2>Dodaj redaktora</h2>
+          <form id="form-nowy-redaktor" novalidate>
+            <label class="a-pole"><span>Login <em>np. jkowalska — małe litery, bez spacji</em></span><input id="nowy-login" autocapitalize="none" spellcheck="false" required maxlength="32"></label>
+            <label class="a-check"><input type="checkbox" id="nadpisz"> Redaktor już istnieje — wygeneruj nowy kod QR (np. po zmianie telefonu)</label>
+            <p class="a-blad" id="blad-nowego" role="alert" hidden></p>
+            <button class="btn btn--glowny" type="submit">Utwórz kod QR</button>
+          </form>
+
+          <div class="a-qr" id="qr-krok" hidden>
+            <ol class="a-qr__kroki">
+              <li>Na telefonie redaktora otwórz <b>Google Authenticator</b> → <b>+</b> → <b>Zeskanuj kod QR</b>.</li>
+              <li>Zeskanuj kod poniżej. W aplikacji pojawi się pozycja <b>SOSW Ostrołęka (<span id="qr-login"></span>)</b>.</li>
+              <li>Wpisz kod, który pokazuje aplikacja, i kliknij „Potwierdź”.</li>
+            </ol>
+            <div class="a-qr__obraz" id="qr-obraz" role="img" aria-label="Kod QR do zeskanowania w Google Authenticator"></div>
+            <details class="a-zaawansowane"><summary>Nie da się zeskanować? Wpisz klucz ręcznie</summary>
+              <p>W aplikacji wybierz „Wpisz klucz konfiguracji”, nazwa: SOSW Ostrołęka, klucz:</p>
+              <p><code class="a-sekret" id="qr-sekret"></code></p>
+              <p class="a-opis">Rodzaj klucza: oparty na czasie.</p>
+            </details>
+            <form id="form-potwierdz" novalidate>
+              <label class="a-pole"><span>Kod z aplikacji</span><input id="kod-potwierdz" class="a-kod" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000" required></label>
+              <p class="a-blad" id="blad-potwierdz" role="alert" hidden></p>
+              <button class="btn btn--glowny" type="submit">Potwierdź</button>
+            </form>
+            <p class="a-opis">Kod QR jest ważny 15 minut. Nie rób mu zdjęć i nie wysyłaj go dalej — to klucz do konta.</p>
+          </div>
+        </div>
+
+        <div class="a-karta a-red">
+          <h2>Konta redaktorów</h2>
+          <ul class="a-red-lista" id="lista-redaktorow"><li class="a-pusto">Wczytywanie…</li></ul>
+        </div>
+      </div>
     </div>
   </section>
 

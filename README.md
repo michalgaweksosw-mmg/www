@@ -28,19 +28,15 @@ Wpisy i zdjęcia dodaje się w panelu: **`https://<konto>.github.io/<repozytoriu
 - podgląd karty wpisu na żywo, przypomnienie o opisach zdjęć (dostępność),
 - każdy zapis to jeden commit w repozytorium — każdą zmianę można cofnąć w historii na GitHubie.
 
-**Logowanie — token GitHub (jednorazowo)**
-1. Zaloguj się na GitHubie na konto z dostępem do repozytorium.
-2. W panelu kliknij „Skąd wziąć token?” → link „formularz nowego tokenu” (nazwa i uprawnienie wypełnią się same).
-3. *Repository access* → **Only select repositories** → wybierz repozytorium strony.
-4. *Repository permissions* → **Contents: Read and write** (nic więcej nie jest potrzebne).
-5. **Generate token**, skopiuj i wklej w panelu.
+**Logowanie: login + kod z Google Authenticator**
 
-Token działa jak hasło — nie wysyłaj go mailem. Każda osoba redagująca stronę powinna mieć własne konto GitHub
-(dodane jako współpracownik repozytorium: *Settings → Collaborators*) i własny token. Token wygasa po roku — wtedy utwórz nowy.
+Redaktor loguje się swoim loginem i 6-cyfrowym kodem z aplikacji Google Authenticator. Konto zakłada administrator
+w panelu (**Jestem administratorem — zarządzaj redaktorami**): wpisuje klucz administratora i login, a redaktor skanuje
+wyświetlony kod QR telefonem. Sesja trwa 8 godzin.
 
-**Bezpieczeństwo:** sama strona `admin.html` jest publiczna, ale bez ważnego tokenu nic nie da się w niej zrobić.
-Token jest przechowywany tylko w przeglądarce (do zamknięcia karty albo — po zaznaczeniu „Zapamiętaj” — na stałe na tym komputerze)
-i wysyłany wyłącznie do api.github.com. Panel nie jest indeksowany przez wyszukiwarki.
+Kody sprawdza mały serwer na Cloudflare (Worker, darmowy), który przechowuje też token GitHub — token nigdy nie trafia
+do przeglądarki. **Jednorazowa konfiguracja serwera: [`_panel-serwer/INSTRUKCJA.md`](_panel-serwer/INSTRUKCJA.md).**
+Dopóki serwer nie jest skonfigurowany, panel pokazuje komunikat z instrukcją.
 
 Po zapisaniu zmiany pojawiają się na stronie po ok. 1–2 minutach (tyle trwa publikacja GitHub Pages) — panel sam informuje, gdy wpis jest już widoczny.
 
@@ -95,4 +91,5 @@ assets/fonts/              czcionki
 assets/img/                grafiki i zdjęcia
 dokumenty/                 pliki PDF do pobrania
 _narzedzia/                generator stron (Python)
+_panel-serwer/             serwer logowania panelu (Cloudflare Worker) + instrukcja
 ```

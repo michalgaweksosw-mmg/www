@@ -155,3 +155,24 @@ body.admin { background: var(--papier-3); min-height: 100vh; }
   .a-gora__konto { width: 100%; justify-content: space-between; }
   .a-dol .btn { flex: 1; justify-content: center; }
 }
+
+/* ---- Logowanie kodem / redaktorzy ---- */
+.a-kod { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace !important; font-size: 1.6rem !important; letter-spacing: .35em; max-width: 12rem; text-align: center; }
+.a-klucze { display: grid; gap: .3rem; margin: 0 0 1.5rem; }
+.a-klucze dt { font-weight: 700; font-size: .9rem; margin-top: .5rem; }
+.a-klucze dd { margin: 0; }
+.a-klucze code, .a-sekret { display: inline-block; word-break: break-all; background: var(--papier-2); padding: .3rem .5rem; border-radius: 6px; font-size: .9rem; user-select: all; }
+.a-sekret { font-size: 1.05rem; letter-spacing: .08em; }
+.a-red { max-width: 40rem; }
+.a-red h2 { font-size: 1.35rem; }
+.a-red-uklad { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1.5rem; align-items: start; }
+.a-red-uklad .a-red { max-width: none; }
+.a-qr { margin-top: 1.5rem; border-top: 1px solid var(--linia); padding-top: 1.25rem; }
+.a-qr__kroki { padding-left: 1.25rem; }
+.a-qr__obraz { width: min(100%, 15rem); margin: 1rem 0 1.25rem; background: #fff; padding: .5rem; border: 1px solid var(--linia); border-radius: 12px; }
+.a-qr__obraz svg { width: 100%; height: auto; display: block; }
+.a-red-lista { list-style: none; margin: 0; padding: 0; }
+.a-red-lista li { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; padding: .8rem 0; border-bottom: 1px solid var(--linia); margin: 0; }
+.a-red-lista li:last-child { border-bottom: 0; }
+.a-red-lista b { font-family: var(--font-tytul); font-size: 1.1rem; margin-right: auto; }
+.a-red-lista small { color: var(--atrament-2); flex-basis: 100%; }

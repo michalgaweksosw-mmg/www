@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOSW w Ostrołęce — Specjalny Ośrodek Szkolno-Wychowawczy im. ks. Jana Twardowskiego w Ostrołęce</title>
+<meta name="description" content="Przedszkole, szkoła podstawowa, szkoła branżowa, szkoła przysposabiająca do pracy i internat dla dzieci i młodzieży z niepełnosprawnością intelektualną w Ostrołęce.">
+<meta name="theme-color" content="#1d5a3b">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="SOSW w Ostrołęce — Specjalny Ośrodek Szkolno-Wychowawczy im. ks. Jana Twardowskiego w Ostrołęce">
+<meta property="og:description" content="Przedszkole, szkoła podstawowa, szkoła branżowa, szkoła przysposabiająca do pracy i internat dla dzieci i młodzieży z niepełnosprawnością intelektualną w Ostrołęce.">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/bricolage-grotesque-latin-standard-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="assets/js/main.js" defer></script>
+<script src="assets/js/aktualnosci-dane.js" defer></script>
+<script src="assets/js/aktualnosci.js" defer></script>
+</head>
+<body>
+<a class="przeskocz" href="#tresc">Przejdź do treści</a>
+
+<div class="pasek-gorny">
+  <div class="kontener">
+    <ul class="pasek-gorny__kontakt">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 12l5 2v3a2 2 0 0 1-2 2A15 15 0 0 1 3 5a2 2 0 0 1 2-2"/></svg><a href="tel:+48297602237">29 760 22 37</a></li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><a href="mailto:sekretariat@sosw.ostroleka.pl">sekretariat@sosw.ostroleka.pl</a></li>
+    </ul>
+    <ul class="pasek-gorny__linki">
+      <li><a href="https://www.e-bip.org.pl/soswostroleka" rel="noopener">BIP</a></li>
+      <li><a href="deklaracja-dostepnosci.html">Deklaracja dostępności</a></li>
+      <li><button type="button" class="przycisk-ulatwien" aria-expanded="false" aria-controls="ulatwienia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="4.5" r="1.8"/><path d="M5 8.5l7 1.5 7-1.5M12 10v4.5m0 0-3 6m3-6 3 6"/></svg>Ułatwienia dostępu</button></li>
+    </ul>
+  </div>
+</div>
+<div class="ulatwienia" id="ulatwienia" role="dialog" aria-modal="false" aria-labelledby="ulatwienia-tytul" hidden>
+  <h2 id="ulatwienia-tytul">Ułatwienia dostępu</h2>
+  <button type="button" class="ulatwienia__zamknij" data-zamknij aria-label="Zamknij panel ułatwień"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <p class="wizualnie-ukryte">Ustawienia są zapamiętywane w tej przeglądarce.</p>
+  <div class="ulatwienia__grupa" role="group" aria-label="Wielkość tekstu">
+    <button type="button" data-skala="1" aria-pressed="true" aria-label="Tekst domyślny">A</button>
+    <button type="button" data-skala="2" aria-pressed="false" aria-label="Tekst większy" style="font-size:1.2rem">A+</button>
+    <button type="button" data-skala="3" aria-pressed="false" aria-label="Tekst największy" style="font-size:1.4rem">A++</button>
+  </div>
+  <div class="ulatwienia__grupa ulatwienia__grupa--2">
+    <button type="button" data-tryb="kontrast" aria-pressed="false">Wysoki kontrast</button>
+    <button type="button" data-tryb="podkresl-linki" aria-pressed="false">Podkreśl linki</button>
+    <button type="button" data-tryb="odstepy" aria-pressed="false">Większe odstępy w tekście</button>
+    <button type="button" data-tryb="bez-animacji" aria-pressed="false">Zatrzymaj animacje</button>
+    <button type="button" class="ulatwienia__reset" data-reset>Przywróć ustawienia domyślne</button>
+  </div>
+</div>
+
+<header class="naglowek">
+  <div class="kontener">
+    <a class="marka" href="index.html" aria-label="Specjalny Ośrodek Szkolno-Wychowawczy im. ks. Jana Twardowskiego w Ostrołęce — strona główna">
+      <svg class="marka__znak" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><circle cx="100" cy="100" r="98" fill="#1d5a3b"/><g><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(0 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(45 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(90 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(135 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(180 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(225 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(270 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(315 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(22.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(67.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(112.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(157.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(202.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(247.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(292.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(337.5 100 100)"/><circle cx="100" cy="100" r="32.4" fill="#f2b705"/><circle cx="100" cy="100" r="21.6" fill="#2c5fc4"/><circle cx="100" cy="100" r="11.9" fill="#c4303a"/><circle cx="100" cy="100" r="4.9" fill="#fff"/></g></svg>
+      <span class="marka__tekst"><span class="marka__skrot">SOSW</span><span class="marka__pelna">im. ks. Jana Twardowskiego w Ostrołęce</span></span>
+    </a>
+    <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="nawigacja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+    <nav class="nawigacja" id="nawigacja" aria-label="Menu główne">
+      <button type="button" class="menu-toggle nawigacja__zamknij" aria-label="Zamknij menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg>Zamknij</button>
+      <ul class="menu"><li><button type="button" class="menu__rozwin" aria-expanded="false" aria-controls="podmenu-osrodek">Ośrodek<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><ul class="podmenu" id="podmenu-osrodek" hidden><li><a href="o-nas.html">O nas</a></li><li><a href="o-nas.html#patron">Patron</a></li><li><a href="projekty.html">Projekty i innowacje</a></li><li><a href="dokumenty.html">Dokumenty</a></li></ul></li><li><button type="button" class="menu__rozwin" aria-expanded="false" aria-controls="podmenu-szkoly">Nasze szkoły<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><ul class="podmenu" id="podmenu-szkoly" hidden><li><a href="przedszkole.html"><span class="kropka" style="--k:var(--c-przedszkole)" aria-hidden="true"></span>Przedszkole Specjalne</a></li><li><a href="szkola-podstawowa.html"><span class="kropka" style="--k:var(--c-sp)" aria-hidden="true"></span>Szkoła Podstawowa Specjalna</a></li><li><a href="szkola-branzowa.html"><span class="kropka" style="--k:var(--c-branzowa)" aria-hidden="true"></span>Branżowa Szkoła Specjalna I stopnia</a></li><li><a href="szkola-przysposabiajaca-do-pracy.html"><span class="kropka" style="--k:var(--c-spdp)" aria-hidden="true"></span>Szkoła Specjalna Przysposabiająca do Pracy</a></li><li><a href="internat.html"><span class="kropka" style="--k:var(--c-internat)" aria-hidden="true"></span>Internat</a></li></ul></li><li><a class="menu__link" href="aktualnosci.html">Aktualności</a></li><li><button type="button" class="menu__rozwin" aria-expanded="false" aria-controls="podmenu-rodzice">Dla rodziców<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button><ul class="podmenu" id="podmenu-rodzice" hidden><li><a href="dla-rodzicow.html">Informacje dla rodziców</a></li><li><a href="rekrutacja.html">Rekrutacja</a></li><li><a href="dla-rodzicow.html#jadlospis">Jadłospis</a></li><li><a href="dla-rodzicow.html#doradztwo">Doradztwo zawodowe</a></li></ul></li><li><a class="menu__link" href="kontakt.html">Kontakt</a></li></ul>
+      <a class="btn btn--glowny dziennik-btn dziennik-btn--menu" href="https://uonetplus.vulcan.net.pl/ostroleka" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6"/></svg>Dziennik elektroniczny</a>
+    </nav>
+    <a class="btn btn--glowny dziennik-btn dziennik-btn--naglowek" href="https://uonetplus.vulcan.net.pl/ostroleka" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6"/></svg>Dziennik</a>
+  </div>
+</header>
+<div class="tlo-menu" hidden></div>
+<main id="tresc" tabindex="-1">
+
+<section class="hero" aria-labelledby="hero-tytul">
+  <div class="kontener">
+    <div class="hero__tekst">
+      <p class="hero__nazwa"><strong>Specjalny Ośrodek Szkolno-Wychowawczy</strong> im. ks. Jana Twardowskiego w Ostrołęce</p>
+      <h1 id="hero-tytul">Każde dziecko rośnie we własnym tempie</h1>
+      <p class="hero__lead">Przedszkole, szkoły i internat dla dzieci i młodzieży z niepełnosprawnością intelektualną. Uczymy w małych grupach, według indywidualnych programów, w atmosferze życzliwości i bezpieczeństwa.</p>
+      <div class="hero__akcje">
+        <a class="btn btn--glowny" href="#szkoly">Poznaj nasze szkoły</a>
+        <a class="btn btn--obrys" href="rekrutacja.html">Jak zapisać dziecko</a>
+      </div>
+    </div>
+    <div class="hero__ilustracja"><svg class="leluja" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Leluja — kurpiowskie drzewko życia w stylu wycinanki"><title>Leluja — kurpiowskie drzewko życia w stylu wycinanki</title><defs><g id="lel-h2"><path d="M196 428 C172 424 140 412 116 392 C146 394 178 404 196 412 Z" fill="#1d5a3b"/><path d="M184 414 C164 410 146 404 132 396" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M96 390 C94 372 102 364 110 372 C118 364 126 372 124 390 C118 399 102 399 96 390Z" fill="#c4303a"/><path d="M110 380 c4 4 4 10 0 13 c-4 -3 -4 -9 0 -13z" fill="#f2b705"/><path d="M196 372 C170 366 132 350 104 324 C138 330 176 344 196 356 Z" fill="#2e7a50"/><path d="M182 358 C160 352 138 342 122 332" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M84 322 C82 304 90 296 98 304 C106 296 114 304 112 322 C106 331 90 331 84 322Z" fill="#2c5fc4"/><path d="M98 312 c4 4 4 10 0 13 c-4 -3 -4 -9 0 -13z" fill="#f2b705"/></g><g id="lel-h3"><path d="M196 318 C164 312 116 292 78 262 C120 268 168 290 196 300 Z" fill="#1d5a3b"/><ellipse cx="146" cy="282" rx="15" ry="6" fill="#2e7a50" transform="rotate(-62 146 282)"/><ellipse cx="118" cy="268" rx="13" ry="5.5" fill="#2e7a50" transform="rotate(-58 118 268)"/><circle cx="72" cy="256" r="17" fill="#c4303a"/><circle cx="72" cy="256" r="10" fill="#f2b705"/><circle cx="72" cy="256" r="4" fill="#1b2340"/><path d="M30 300 l7 -9 l7 9 l-7 9z" fill="#f2b705"/><circle cx="40" cy="380" r="5" fill="#c4303a"/></g><g id="lel-h4"><path d="M196 262 C170 252 128 232 100 214 C132 216 172 230 198 246 Z" fill="#2e7a50"/><g transform="translate(96 190)"><path d="M-26 4 L-46 -6 L-40 10 L-48 20 L-22 12 Z" fill="#1d5a3b"/><path d="M-28 6 C-24 -12 -4 -18 12 -12 C18 -20 30 -20 34 -10 L43 -6 L34 -2 C32 12 16 20 0 18 C-12 18 -22 14 -28 6 Z" fill="#2c5fc4"/><path d="M-12 1 C-4 -8 10 -8 17 2 C8 10 -4 10 -12 1 Z" fill="#f2b705"/><circle cx="26" cy="-11" r="2.6" fill="#fff"/></g><path d="M48 140 l8 -10 l8 10 l-8 10z" fill="#c4303a"/><circle cx="80" cy="96" r="5" fill="#2c5fc4"/></g></defs><g class="w w1"><path d="M118 452 C150 434 250 434 282 452 L268 492 L132 492 Z" fill="#c4303a"/><path d="M127 466 L273 466 L270 474 L130 474 Z" fill="#f2b705"/><circle cx="150" cy="483" r="3.2" fill="#fff"/><circle cx="175" cy="483" r="3.2" fill="#fff"/><circle cx="200" cy="483" r="3.2" fill="#fff"/><circle cx="225" cy="483" r="3.2" fill="#fff"/><circle cx="250" cy="483" r="3.2" fill="#fff"/></g><g class="w w2"><path d="M194 446 L194 150 Q200 138 206 150 L206 446 Z" fill="#1d5a3b"/><use href="#lel-h2"/><use href="#lel-h2" transform="translate(400 0) scale(-1 1)"/></g><g class="w w3"><use href="#lel-h3"/><use href="#lel-h3" transform="translate(400 0) scale(-1 1)"/></g><g class="w w4"><use href="#lel-h4"/><use href="#lel-h4" transform="translate(400 0) scale(-1 1)"/></g><g class="w w5"><g><ellipse cx="200" cy="50.0" rx="15.0" ry="32.0" fill="#c4303a" transform="rotate(0 200 100)"/><ellipse cx="200" cy="50.0" rx="15.0" ry="32.0" fill="#c4303a" transform="rotate(45 200 100)"/><ellipse cx="200" cy="50.0" rx="15.0" ry="32.0" fill="#c4303a" transform="rotate(90 200 100)"/><ellipse cx="200" cy="50.0" rx="15.0" ry="32.0" fill="#c4303a" transform="rotate(135 200 100)"/><ellipse cx="200" cy="50.0" rx="15.0" ry="32.0" fill="#c4303a" transform="rotate(180 200 100)"/><ellipse cx="200" cy="50.0" rx="15.0" ry="32.0" fill="#c4303a" transform="rotate(225 200 100)"/><ellipse cx="200" cy="50.0" rx="15.0" ry="32.0" fill="#c4303a" transform="rotate(270 200 100)"/><ellipse cx="200" cy="50.0" rx="15.0" ry="32.0" fill="#c4303a" transform="rotate(315 200 100)"/><ellipse cx="200" cy="66.0" rx="8.0" ry="16.0" fill="#1d5a3b" transform="rotate(22.5 200 100)"/><ellipse cx="200" cy="66.0" rx="8.0" ry="16.0" fill="#1d5a3b" transform="rotate(67.5 200 100)"/><ellipse cx="200" cy="66.0" rx="8.0" ry="16.0" fill="#1d5a3b" transform="rotate(112.5 200 100)"/><ellipse cx="200" cy="66.0" rx="8.0" ry="16.0" fill="#1d5a3b" transform="rotate(157.5 200 100)"/><ellipse cx="200" cy="66.0" rx="8.0" ry="16.0" fill="#1d5a3b" transform="rotate(202.5 200 100)"/><ellipse cx="200" cy="66.0" rx="8.0" ry="16.0" fill="#1d5a3b" transform="rotate(247.5 200 100)"/><ellipse cx="200" cy="66.0" rx="8.0" ry="16.0" fill="#1d5a3b" transform="rotate(292.5 200 100)"/><ellipse cx="200" cy="66.0" rx="8.0" ry="16.0" fill="#1d5a3b" transform="rotate(337.5 200 100)"/><circle cx="200" cy="100" r="30.0" fill="#f2b705"/><circle cx="200" cy="100" r="20.0" fill="#2c5fc4"/><circle cx="200" cy="100" r="11.0" fill="#c4303a"/><circle cx="200" cy="100" r="4.5" fill="#fff"/><circle cx="200" cy="34.0" r="3.2" fill="#fff" transform="rotate(0 200 100)"/><circle cx="200" cy="34.0" r="3.2" fill="#fff" transform="rotate(45 200 100)"/><circle cx="200" cy="34.0" r="3.2" fill="#fff" transform="rotate(90 200 100)"/><circle cx="200" cy="34.0" r="3.2" fill="#fff" transform="rotate(135 200 100)"/><circle cx="200" cy="34.0" r="3.2" fill="#fff" transform="rotate(180 200 100)"/><circle cx="200" cy="34.0" r="3.2" fill="#fff" transform="rotate(225 200 100)"/><circle cx="200" cy="34.0" r="3.2" fill="#fff" transform="rotate(270 200 100)"/><circle cx="200" cy="34.0" r="3.2" fill="#fff" transform="rotate(315 200 100)"/></g></g></svg></div>
+  </div>
+</section>
+
+<nav class="skroty" aria-label="Najczęściej odwiedzane">
+  <div class="kontener">
+    <ul>
+      <li><a href="https://uonetplus.vulcan.net.pl/ostroleka" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6"/></svg><strong>Dziennik elektroniczny</strong><span>Oceny, frekwencja, wiadomości</span></a></li>
+      <li><a href="dla-rodzicow.html#jadlospis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2.5"/><path d="M3 4v6a2 2 0 0 0 2 2v8M21 4c-2 0-2.5 3-2.5 6s.5 2 2.5 2v8"/></svg><strong>Jadłospis</strong><span>Posiłki w tym tygodniu</span></a></li>
+      <li><a href="rekrutacja.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4h6v3H9zM7 5H5v16h14V5h-2"/><path d="m9 14 2 2 4-4"/></svg><strong>Rekrutacja</strong><span>Zapisy przez cały rok</span></a></li>
+      <li><a href="kontakt.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 12l5 2v3a2 2 0 0 1-2 2A15 15 0 0 1 3 5a2 2 0 0 1 2-2"/></svg><strong>Kontakt</strong><span>tel. 29 760 22 37</span></a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="sekcja" id="szkoly" aria-labelledby="szkoly-tytul">
+  <div class="kontener">
+    <div class="sekcja__naglowek">
+      <div>
+        <h2 id="szkoly-tytul">Nasze szkoły</h2>
+        <p>W jednym miejscu dziecko może przejść całą drogę — od przedszkola, przez szkołę podstawową, po naukę zawodu i przygotowanie do pracy.</p>
+      </div>
+    </div>
+    <ul class="jednostki">
+      <li class="jednostka jednostka--przedszkole">
+        <a href="przedszkole.html">
+          <svg class="jednostka__ikona" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <h3>Przedszkole Specjalne</h3>
+          <p>Dla dzieci z orzeczeniem o potrzebie kształcenia specjalnego. Od poniedziałku do piątku, 7.30–15.30, w małych grupach.</p>
+          <span class="jednostka__strzalka" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+        </a>
+      </li>
+      <li class="jednostka jednostka--sp">
+        <a href="szkola-podstawowa.html">
+          <svg class="jednostka__ikona" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2zM12 6v14"/></svg>
+          <h3>Szkoła Podstawowa Specjalna</h3>
+          <p>Klasy I–VIII dla uczniów z niepełnosprawnością intelektualną w stopniu lekkim, umiarkowanym lub znacznym oraz z niepełnosprawnościami sprzężonymi.</p>
+          <span class="jednostka__strzalka" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+        </a>
+      </li>
+      <li class="jednostka jednostka--branzowa">
+        <a href="szkola-branzowa.html">
+          <svg class="jednostka__ikona" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 18h10v3H7zM7 18V13a4 4 0 0 1-1-7.6A4 4 0 0 1 12 3a4 4 0 0 1 6 2.4A4 4 0 0 1 17 13v5"/></svg>
+          <h3>Branżowa Szkoła Specjalna I stopnia</h3>
+          <p>Nauka zawodu dla młodzieży z niepełnosprawnością intelektualną w stopniu lekkim.</p>
+          <span class="jednostka__strzalka" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+        </a>
+      </li>
+      <li class="jednostka jednostka--spdp">
+        <a href="szkola-przysposabiajaca-do-pracy.html">
+          <svg class="jednostka__ikona" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17l3 3 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>
+          <h3>Szkoła Specjalna Przysposabiająca do Pracy</h3>
+          <p>Trzyletnia szkoła dla młodzieży z niepełnosprawnością intelektualną w stopniu umiarkowanym lub znacznym — samodzielność i przygotowanie do pracy.</p>
+          <span class="jednostka__strzalka" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+        </a>
+      </li>
+      <li class="jednostka jednostka--internat">
+        <a href="internat.html">
+          <svg class="jednostka__ikona" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+          <h3>Internat</h3>
+          <p>Część mieszkalna Ośrodka — opieka wychowawców, nauka własna i zajęcia popołudniowe.</p>
+          <span class="jednostka__strzalka" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="sekcja sekcja--tlo" aria-labelledby="praca-tytul">
+  <div class="kontener">
+    <div class="sekcja__naglowek"><div><h2 id="praca-tytul">Jak pracujemy</h2>
+      <p>Każdy uczeń ma swój plan nauki i terapii, przygotowany przez zespół nauczycieli i specjalistów razem z rodzicami.</p></div></div>
+    <ul class="kafle">
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 4a2 2 0 1 1 4 0v2h4v4h-2a2 2 0 1 0 0 4h2v4h-4v-2a2 2 0 1 0-4 0v2H6v-4h2a2 2 0 1 0 0-4H6V6h4z"/></svg>Indywidualny program</h3><p>Indywidualny Program Edukacyjno-Terapeutyczny (IPET) dopasowany do możliwości i potrzeb każdego ucznia.</p></li>
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Rewalidacja i terapia</h3><p>Terapia mowy i komunikacji, integracja sensoryczna, usprawnianie funkcji percepcyjno-motorycznych.</p></li>
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Sale terapeutyczne</h3><p>Sala Doświadczania Świata, sala integracji sensorycznej, tablice interaktywne i programy multimedialne.</p></li>
+      <li><h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0M14 20a5 5 0 0 1 7-4.5"/></svg>Pomoc psychologiczno-pedagogiczna</h3><p>Wsparcie psychologa i pedagogów — dla uczniów i dla rodziców.</p></li>
+    </ul>
+  </div>
+</section>
+
+<section class="sekcja" aria-labelledby="akt-tytul">
+  <div class="kontener">
+    <div class="sekcja__naglowek">
+      <div><h2 id="akt-tytul">Co u nas słychać</h2></div>
+      <a class="link-wiecej" href="aktualnosci.html">Wszystkie aktualności</a>
+    </div>
+    <div class="aktualnosci-uklad" id="aktualnosci-glowna">
+      <p>Wczytywanie aktualności… Jeśli lista się nie pojawi, przejdź do strony <a href="aktualnosci.html">Aktualności</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="patron" aria-labelledby="patron-tytul">
+  <div class="kontener">
+    <svg class="patron__znak" viewBox="0 0 200 220" aria-hidden="true" focusable="false"><path d="M100 20 C70 20 60 40 64 52 L136 52 C140 40 130 20 100 20Z" fill="#1b2340"/><circle cx="86" cy="36" r="4" fill="#fff"/><circle cx="114" cy="36" r="4" fill="#fff"/><path d="M84 18 C78 6 70 4 62 6" stroke="#1b2340" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M116 18 C122 6 130 4 138 6" stroke="#1b2340" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M40 70 L18 60 M38 120 L12 122 M44 168 L22 186 M160 70 L182 60 M162 120 L188 122 M156 168 L178 186" stroke="#1b2340" stroke-width="7" stroke-linecap="round"/><path d="M100 50 C42 50 28 110 38 150 C48 192 80 210 100 210 C120 210 152 192 162 150 C172 110 158 50 100 50Z" fill="#c4303a"/><path d="M100 50 L100 210" stroke="#1b2340" stroke-width="6"/><circle cx="78" cy="118" r="13" fill="#1b2340"/><circle cx="122" cy="118" r="13" fill="#1b2340"/><circle cx="70" cy="158" r="11" fill="#1b2340"/><circle cx="130" cy="158" r="11" fill="#1b2340"/><circle cx="100" cy="186" r="9" fill="#f2b705"/><path d="M60 92 C66 80 76 72 88 68" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/></svg>
+    <div>
+      <h2 id="patron-tytul">Nasz patron — ks. Jan Twardowski</h2>
+      <p>Kapłan i jeden z najbardziej lubianych polskich poetów (1915–2006). Pisał prostymi słowami o miłości, przyrodzie i o tym, co małe i łatwe do przeoczenia. Nazywano go „księdzem od biedronki”.</p>
+      <p>Jego uważność na drugiego człowieka jest dla nas wskazówką w codziennej pracy z dziećmi.</p>
+      <p><a href="o-nas.html#patron">Więcej o patronie</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="sekcja" aria-labelledby="rek-tytul">
+  <div class="kontener">
+    <div class="rekrutacja-pas">
+      <div class="sekcja__naglowek"><div>
+        <h2 id="rek-tytul">Rekrutacja trwa przez cały rok</h2>
+        <p>Dziecko można zapisać w dowolnym momencie roku szkolnego. Tak wygląda droga do naszego Ośrodka:</p>
+      </div></div>
+      <ol class="kroki">
+        <li><h3>Rozmowa</h3><p>Zadzwoń lub przyjdź do sekretariatu. Opowiedz o dziecku i umów się na wizytę.</p></li>
+        <li><h3>Orzeczenie</h3><p>Potrzebne jest orzeczenie o potrzebie kształcenia specjalnego z poradni psychologiczno-pedagogicznej.</p></li>
+        <li><h3>Skierowanie</h3><p>Na Twój wniosek organ prowadzący (dla Ostrołęki — Prezydent Miasta) wskazuje placówkę.</p></li>
+        <li><h3>Pierwszy dzień</h3><p>Składasz dokumenty, poznajecie wychowawcę i specjalistów, a dziecko spokojnie wchodzi w nowy rytm.</p></li>
+      </ol>
+      <div class="rekrutacja-pas__akcje">
+        <a class="btn btn--slonce" href="rekrutacja.html">Szczegóły rekrutacji</a>
+        <a class="btn btn--obrys" href="tel:+48297602237"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 12l5 2v3a2 2 0 0 1-2 2A15 15 0 0 1 3 5a2 2 0 0 1 2-2"/></svg>Zadzwoń: 29 760 22 37</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="sekcja sekcja--jasna" aria-labelledby="kontakt-tytul">
+  <div class="kontener kontakt-uklad">
+    <div>
+      <h2 id="kontakt-tytul">Jak do nas trafić</h2>
+      <ul class="dane-kontaktowe">
+        <li><span class="ikona"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><span><small>Adres</small><b>ul. gen. Romualda Traugutta 9<br>07-410 Ostrołęka</b></span></li>
+        <li><span class="ikona"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 3h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 12l5 2v3a2 2 0 0 1-2 2A15 15 0 0 1 3 5a2 2 0 0 1 2-2"/></svg></span><span><small>Telefon i faks</small><a href="tel:+48297602237">29 760 22 37</a></span></li>
+        <li><span class="ikona"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><span><small>E-mail sekretariatu</small><a href="mailto:sekretariat@sosw.ostroleka.pl">sekretariat@sosw.ostroleka.pl</a></span></li>
+      </ul>
+      <a class="btn btn--obrys" href="kontakt.html">Wszystkie dane kontaktowe</a>
+    </div>
+    <div class="mapa">
+      <div class="mapa__zgoda">
+        <svg class="mapa__tlo" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><rect width="600" height="400" fill="#e3ecdd"/><path d="M-20 300 C120 260 220 330 360 290 S560 230 640 260" stroke="#b9cfe9" stroke-width="38" fill="none"/><path d="M0 120 L600 170 M120 0 L170 400 M380 0 L420 400 M0 40 L600 70" stroke="#fff" stroke-width="12"/><path d="M0 220 L600 210" stroke="#fff" stroke-width="18"/><rect x="200" y="90" width="80" height="60" rx="6" fill="#d2dfca"/><rect x="440" y="90" width="110" height="70" rx="6" fill="#d2dfca"/><rect x="30" y="140" width="70" height="60" rx="6" fill="#d2dfca"/></svg>
+        <button type="button" class="btn btn--glowny" data-mapa="https://maps.google.com/maps?q=ul.%20gen.%20Romualda%20Traugutta%209%2C%2007-410%20Ostro%C5%82%C4%99ka&z=16&output=embed"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Pokaż mapę</button>
+        <p>Mapa pochodzi z serwisu Google Maps — wczytamy ją dopiero po kliknięciu. Możesz też <a href="https://www.openstreetmap.org/search?query=Traugutta%209%2C%20Ostro%C5%82%C4%99ka" rel="noopener">otworzyć lokalizację w OpenStreetMap</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="stopka" style="--tlo-nad-stopka:var(--papier-3)">
+  <svg class="stopka__brzeg" viewBox="0 0 1200 28" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path fill="currentColor" d="M0 28V14 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0 q15 -14 30 0V28Z"/></svg>
+  <div class="kontener">
+    <div>
+      <a class="marka" href="index.html" aria-label="Specjalny Ośrodek Szkolno-Wychowawczy im. ks. Jana Twardowskiego w Ostrołęce — strona główna">
+      <svg class="marka__znak" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><circle cx="100" cy="100" r="98" fill="#1d5a3b"/><g><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(0 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(45 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(90 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(135 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(180 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(225 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(270 100 100)"/><ellipse cx="100" cy="46.0" rx="16.2" ry="34.6" fill="#c4303a" transform="rotate(315 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(22.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(67.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(112.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(157.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(202.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(247.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(292.5 100 100)"/><ellipse cx="100" cy="63.3" rx="8.6" ry="17.3" fill="#1d5a3b" transform="rotate(337.5 100 100)"/><circle cx="100" cy="100" r="32.4" fill="#f2b705"/><circle cx="100" cy="100" r="21.6" fill="#2c5fc4"/><circle cx="100" cy="100" r="11.9" fill="#c4303a"/><circle cx="100" cy="100" r="4.9" fill="#fff"/></g></svg>
+      <span class="marka__tekst"><span class="marka__skrot">SOSW</span><span class="marka__pelna">im. ks. Jana Twardowskiego w Ostrołęce</span></span>
+    </a>
+      <address>
+        Specjalny Ośrodek Szkolno-Wychowawczy<br>im. ks. Jana Twardowskiego w Ostrołęce<br>
+        ul. gen. Romualda Traugutta 9, 07-410 Ostrołęka<br>
+        tel./fax <a href="tel:+48297602237">29 760 22 37</a><br>
+        <a href="mailto:sekretariat@sosw.ostroleka.pl">sekretariat@sosw.ostroleka.pl</a>
+      </address>
+    </div>
+    <nav aria-label="Nasze szkoły — stopka">
+      <h2>Nasze szkoły</h2>
+      <ul><li><a href="przedszkole.html">Przedszkole Specjalne</a></li><li><a href="szkola-podstawowa.html">Szkoła Podstawowa Specjalna</a></li><li><a href="szkola-branzowa.html">Branżowa Szkoła Specjalna I stopnia</a></li><li><a href="szkola-przysposabiajaca-do-pracy.html">Szkoła Specjalna Przysposabiająca do Pracy</a></li><li><a href="internat.html">Internat</a></li></ul>
+    </nav>
+    <nav aria-label="Na skróty — stopka">
+      <h2>Na skróty</h2>
+      <ul>
+        <li><a href="aktualnosci.html">Aktualności</a></li>
+        <li><a href="rekrutacja.html">Rekrutacja</a></li>
+        <li><a href="dla-rodzicow.html#jadlospis">Jadłospis</a></li>
+        <li><a href="https://uonetplus.vulcan.net.pl/ostroleka" rel="noopener">Dziennik elektroniczny</a></li>
+        <li><a href="dokumenty.html">Dokumenty</a></li>
+      </ul>
+    </nav>
+    <nav aria-label="Informacje prawne — stopka">
+      <h2>Informacje</h2>
+      <ul>
+        <li><a href="https://www.e-bip.org.pl/soswostroleka" rel="noopener">Biuletyn Informacji Publicznej</a></li>
+        <li><a href="deklaracja-dostepnosci.html">Deklaracja dostępności</a></li>
+        <li><a href="polityka-prywatnosci.html">RODO i prywatność</a></li>
+        <li><a href="kontakt.html">Kontakt</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="stopka__dol">
+    <div class="kontener">
+      <p>© 2026 SOSW w Ostrołęce</p>
+      <p>Ilustracje: motywy inspirowane kurpiowską wycinanką</p>
+    </div>
+  </div>
+</footer>
+<button type="button" class="do-gory" aria-label="Wróć na górę strony"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 15 6-6 6 6"/></svg></button>
+</body>
+</html>

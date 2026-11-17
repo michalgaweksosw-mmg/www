@@ -1,7 +1,7 @@
 /* ==========================================================================
    Panel administratora strony SOSW
-   - logowanie: login + kod z Google Authenticator (przez serwer panelu — Cloudflare Worker)
-   - zarządzanie redaktorami (kod QR do zeskanowania)
+   - logowanie loginem i hasłem: hasło odszyfrowuje w przeglądarce token GitHub
+     zapisany w assets/js/admin-config.js (AES-GCM, klucz z hasła: PBKDF2-SHA256)
    - dodawanie / edycja / usuwanie aktualności
    - biblioteka zdjęć
    - automatyczna konwersja JPEG/PNG → WebP (w przeglądarce, bez wysyłania gdziekolwiek)
@@ -10,7 +10,7 @@
 (function () {
   "use strict";
 
-  var API_PANELU = String(window.SOSW_PANEL_API || "").trim().replace(/\/+$/, "");
+  var API = "https://api.github.com";
   var PLIK_DANYCH = "assets/js/aktualnosci-dane.js";
   var KATALOG_ZDJEC = "assets/img/aktualnosci";
   var ZNACZNIK_START = "/*DANE-START*/";
@@ -27,13 +27,18 @@
 
   /* ---------------- stan ---------------- */
   var wykryte = wykryjRepo();
+  var KONFIG = window.SOSW_PANEL || { konta: [] };
+  if (!Array.isArray(KONFIG.konta)) KONFIG.konta = [];
+  var PLIK_KONFIGURACJI = "assets/js/admin-config.js";
+  var ITERACJE = 600000;
+  // pliki po poprzedniej wersji panelu (Cloudflare) — usuwane przy pierwszej konfiguracji
+  var DO_SPRZATNIECIA = ["_panel-serwer/worker.js", "_panel-serwer/wrangler.toml", "_panel-serwer/INSTRUKCJA.md", "assets/js/vendor/qrcode.js"];
   var stan = {
-    sesja: null,
+    token: null,
+    owner: KONFIG.owner || wykryte.owner,
+    repo: KONFIG.repo || wykryte.repo,
+    branch: KONFIG.branch || "",
     login: "",
-    kluczAdmina: "",
-    owner: wykryte.owner,
-    repo: wykryte.repo,
-    branch: "",
     dane: null,          // { wpisy, przed, po }
     drzewo: [],          // ścieżki plików w repozytorium
     edytowany: null,     // id edytowanego wpisu albo null (nowy)
@@ -110,16 +115,17 @@
   }
 
   /* ---------------- GitHub API ---------------- */
-  function repoSciezka(p) { return "/repo" + p; }
+  function repoSciezka(p) { return "/repos/" + encodeURIComponent(stan.owner) + "/" + encodeURIComponent(stan.repo) + p; }
 
-  /* Zapytanie do serwera panelu. sciezka np. "/login", "/gh/repo/git/blobs" */
-  function serwer(sciezka, opcje) {
+  function gh(sciezka, opcje) {
     opcje = opcje || {};
-    var naglowki = {};
-    if (opcje.sesja !== false && stan.sesja) naglowki.Authorization = "Bearer " + stan.sesja;
-    if (opcje.klucz) naglowki["X-Setup-Key"] = opcje.klucz;
+    var naglowki = {
+      Authorization: "Bearer " + stan.token,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28"
+    };
     if (opcje.body) naglowki["Content-Type"] = "application/json";
-    return fetch(API_PANELU + sciezka, {
+    return fetch(API + sciezka, {
       method: opcje.method || "GET",
       headers: naglowki,
       body: opcje.body ? JSON.stringify(opcje.body) : undefined,
@@ -129,26 +135,21 @@
       return r.json().catch(function () { return {}; }).then(function (j) {
         var e = new Error(j.message || r.statusText);
         e.status = r.status;
-        e.kod = j.kod || "";
         e.limit = r.headers.get("x-ratelimit-remaining") === "0";
-        if (r.status === 401 && e.kod === "sesja" && stan.sesja) sesjaWygasla(e.message);
         throw e;
       });
     }, function () {
-      var e = new Error("Brak połączenia z serwerem panelu. Sprawdź internet i spróbuj ponownie.");
+      var e = new Error("Brak połączenia z GitHubem. Sprawdź internet i spróbuj ponownie.");
       e.status = 0; throw e;
     });
   }
-  function gh(sciezka, opcje) { return serwer("/gh" + sciezka, opcje); }
 
   function komunikatBledu(e) {
     if (!e) return "Nieznany błąd.";
-    if (e.kod) return e.message; // komunikat z serwera panelu
-    if (e.status === 401) return e.message || "Zaloguj się ponownie.";
+    if (e.status === 401) return "Token jest nieprawidłowy albo wygasł. Wyloguj się i zaloguj nowym tokenem.";
     if (e.status === 403 && e.limit) return "Przekroczono limit zapytań do GitHuba. Spróbuj za kilkanaście minut.";
-    if (e.status === 403 && e.message) return e.message;
-    if (e.status === 403) return "Token GitHub na serwerze panelu nie ma uprawnień do zapisu (Contents: Read and write).";
-    if (e.status === 404 && /^Not Found$/i.test(e.message)) return "Nie znaleziono repozytorium " + stan.owner + "/" + stan.repo + " albo token na serwerze panelu nie ma do niego dostępu.";
+    if (e.status === 403) return "Token nie ma uprawnień do zapisu. Sprawdź, czy ma dostęp do repozytorium " + stan.repo + " i uprawnienie Contents: Read and write.";
+    if (e.status === 404) return "Nie znaleziono repozytorium " + stan.owner + "/" + stan.repo + " albo token nie ma do niego dostępu.";
     if (e.status === 409) return "Repozytorium jest puste albo zablokowane.";
     if (e.status === 422) return "Ktoś zapisał zmiany w tym samym momencie. Odśwież panel i spróbuj ponownie.";
     return e.message || "Nieznany błąd.";
@@ -199,6 +200,9 @@
       var glowa = ref.object.sha;
       var commit = await gh(repoSciezka("/git/commits/" + glowa));
       var drzewo = bloby.slice();
+      if (o.generuj) {
+        (await o.generuj(glowa)).forEach(function (f) { drzewo.push({ path: f.path, mode: "100644", type: "blob", content: f.content }); });
+      }
       var dane = null;
       if (o.zmienDane) {
         dane = await wczytajDane(glowa);
@@ -294,128 +298,196 @@
 
   /* ---------------- logowanie ---------------- */
   function pokazEkran(id) {
-    ["ekran-logowania", "ekran-aktualnosci", "ekran-edytora", "ekran-zdjec", "ekran-redaktorzy"].forEach(function (e) { $("#" + e).hidden = e !== id; });
-    var zalogowany = !!stan.sesja && id !== "ekran-logowania";
+    ["ekran-logowania", "ekran-konfiguracji", "ekran-konta", "ekran-aktualnosci", "ekran-edytora", "ekran-zdjec"].forEach(function (e) { $("#" + e).hidden = e !== id; });
+    var zalogowany = !!stan.token && id !== "ekran-logowania" && id !== "ekran-konfiguracji";
     $(".a-gora__zakladki").hidden = !zalogowany;
     $(".a-gora__konto").hidden = !zalogowany;
     $$(".a-gora__zakladki a").forEach(function (a) {
-      var akt = (a.dataset.zakladka === "aktualnosci" && (id === "ekran-aktualnosci" || id === "ekran-edytora")) || (a.dataset.zakladka === "zdjecia" && id === "ekran-zdjec") || (a.dataset.zakladka === "redaktorzy" && id === "ekran-redaktorzy");
+      var akt = (a.dataset.zakladka === "aktualnosci" && (id === "ekran-aktualnosci" || id === "ekran-edytora")) || (a.dataset.zakladka === "zdjecia" && id === "ekran-zdjec") || (a.dataset.zakladka === "konto" && id === "ekran-konta");
       if (akt) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
   }
 
+  /* ---------------- szyfrowanie tokenu hasłem ---------------- */
+  var tekstEnc = new TextEncoder();
+  function b64(bajty) { var t = ""; for (var i = 0; i < bajty.length; i++) t += String.fromCharCode(bajty[i]); return btoa(t); }
+  function zB64(t) { var s = atob(t), u = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+  async function kluczZHasla(login, haslo, sol, iteracje) {
+    var baza = await crypto.subtle.importKey("raw", tekstEnc.encode(haslo), "PBKDF2", false, ["deriveKey"]);
+    var l = tekstEnc.encode(login.toLowerCase());
+    var solPelna = new Uint8Array(sol.length + l.length); // sól losowa + login
+    solPelna.set(sol); solPelna.set(l, sol.length);
+    return crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: solPelna, iterations: iteracje }, baza, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+  }
+  async function zaszyfrujToken(login, haslo, token) {
+    var sol = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    var k = await kluczZHasla(login, haslo, sol, ITERACJE);
+    var szyfr = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, k, tekstEnc.encode(token)));
+    return { login: login.toLowerCase(), iteracje: ITERACJE, sol: b64(sol), iv: b64(iv), dane: b64(szyfr), utworzono: new Date().toISOString().slice(0, 10) };
+  }
+  async function odszyfrujToken(konto, haslo) {
+    var k = await kluczZHasla(konto.login, haslo, zB64(konto.sol), konto.iteracje || ITERACJE);
+    var jawny = await crypto.subtle.decrypt({ name: "AES-GCM", iv: zB64(konto.iv) }, k, zB64(konto.dane));
+    return new TextDecoder().decode(jawny);
+  }
+  function znajdzKonto(konfig, login) {
+    login = login.trim().toLowerCase();
+    return (konfig.konta || []).filter(function (k) { return k.login === login; })[0];
+  }
+  function ocenHaslo(h) {
+    if (!h) return "";
+    var rodzaje = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter(function (r) { return r.test(h); }).length;
+    if (h.length >= 14 && rodzaje >= 3) return "Hasło jest silne.";
+    if (h.length >= 12 && rodzaje >= 2) return "Hasło jest w porządku. Dłuższe (np. 3–4 przypadkowe słowa) będzie bezpieczniejsze.";
+    return "Uwaga: to hasło jest słabe. Zaszyfrowany token jest publiczny, więc krótkie hasło (zwłaszcza imię + cyfry) da się odgadnąć programem. Zalecamy min. 14 znaków, np. kilka przypadkowych słów.";
+  }
+  var LOGIN_RE = /^[a-z0-9][a-z0-9._-]{1,31}$/;
+
+  /* ---------------- plik konfiguracji ---------------- */
+  function tekstKonfiguracji(k) {
+    return "/* Konfiguracja panelu administratora — plik zapisywany przez panel (admin.html → Konta).\n" +
+      "   Zawiera loginy i zaszyfrowany token GitHub (AES-GCM, klucz wyprowadzony z hasła: PBKDF2-SHA256).\n" +
+      "   Haseł tu nie ma. Nie edytuj ręcznie. */\n" +
+      "window.SOSW_PANEL = /*KONFIG-START*/" + JSON.stringify(k, null, 2) + "/*KONFIG-KONIEC*/;\n";
+  }
+  async function konfiguracjaZRepo(ref) {
+    try {
+      var f = await gh(repoSciezka("/contents/" + PLIK_KONFIGURACJI + "?ref=" + encodeURIComponent(ref)));
+      var t = dekodujB64(f.content), a = t.indexOf("/*KONFIG-START*/"), b = t.indexOf("/*KONFIG-KONIEC*/");
+      if (a < 0 || b < 0) return { konta: [] };
+      var k = JSON.parse(t.slice(a + 16, b));
+      if (!Array.isArray(k.konta)) k.konta = [];
+      return k;
+    } catch (e) { if (e.status === 404) return { konta: [] }; throw e; }
+  }
+  /** Zmiana konfiguracji kont — zawsze na najnowszej wersji pliku z repozytorium */
+  async function zmienKonfiguracje(opis, fn, usun) {
+    var wynik = null;
+    await zatwierdz({
+      opis: opis, usun: usun || [],
+      generuj: async function (glowa) {
+        var k = await konfiguracjaZRepo(glowa);
+        k = fn(k) || k;
+        k.owner = stan.owner; k.repo = stan.repo; k.branch = stan.branch;
+        wynik = k;
+        return [{ path: PLIK_KONFIGURACJI, content: tekstKonfiguracji(k) }];
+      }
+    });
+    KONFIG = wynik;
+    return wynik;
+  }
+
+  /* ---------------- logowanie ---------------- */
   function ustawFormularzLogowania() {
-    var brak = !API_PANELU;
-    $("#brak-konfiguracji").hidden = !brak;
-    $("#form-logowania").hidden = brak;
-    if (brak) {
-      var los = function () { var b = crypto.getRandomValues(new Uint8Array(30)); return btoa(String.fromCharCode.apply(null, b)).replace(/[+/=]/g, "").slice(0, 40); };
-      $("#los-1").textContent = los(); $("#los-2").textContent = los();
-    }
+    $("#cfg-owner").value = stan.owner;
+    $("#cfg-repo").value = stan.repo;
+    $("#cfg-branch").value = stan.branch;
+    $("#nazwa-repo-pomoc").textContent = stan.owner + "/" + stan.repo;
+    $("#link-token").href = "https://github.com/settings/personal-access-tokens/new?name=" +
+      encodeURIComponent("Panel strony SOSW") + "&description=" + encodeURIComponent("Panel administratora strony " + stan.owner + "/" + stan.repo) +
+      "&target_name=" + encodeURIComponent(stan.owner) + "&expires_in=365&contents=write";
+    $("#info-brak-kont").hidden = KONFIG.konta.length > 0;
+    $("#kfg-ostrzezenie").hidden = KONFIG.konta.length === 0;
   }
 
-  async function wczytajKonfiguracje() {
-    var c = await serwer("/config", { sesja: false });
-    stan.owner = c.owner; stan.repo = c.repo;
-    if (c.branch) stan.branch = c.branch;
+  /** Sprawdza token w GitHubie i wczytuje dane. */
+  async function uruchomZTokenem(token, login) {
+    stan.token = token;
+    var repo = await gh(repoSciezka(""));
+    if (!repo.permissions || !repo.permissions.push) { var e = new Error(); e.status = 403; throw e; }
+    if (!stan.branch) stan.branch = repo.default_branch;
+    stan.login = login;
+    $("#uzytkownik").textContent = "Zalogowano: " + login;
+    pisz("sessionStorage", "sosw-admin-sesja", JSON.stringify({ token: token, login: login, branch: stan.branch }));
+    await odswiez();
+    if (!location.hash || /^#(konfiguracja)?$/.test(location.hash)) history.replaceState(null, "", "#aktualnosci");
+    ostatniHash = location.hash;
+    router();
   }
 
-  async function zaloguj(login, kod) {
-    var blad = $("#blad-logowania");
+  async function zalogujHaslem(login, haslo) {
+    var blad = $("#blad-logowania"), przycisk = $("#przycisk-logowania");
     blad.hidden = true;
-    var przycisk = $("#przycisk-logowania");
     przycisk.disabled = true; przycisk.textContent = "Sprawdzam…";
     try {
-      var odp = await serwer("/login", { method: "POST", sesja: false, body: { login: login, kod: kod } });
-      stan.sesja = odp.sesja; stan.login = odp.login;
-      pisz("sessionStorage", "sosw-admin-sesja", JSON.stringify({ sesja: odp.sesja, login: odp.login, wygasa: odp.wygasa }));
-      pisz("localStorage", "sosw-admin-login", odp.login);
-      $("#kod").value = "";
-      await poZalogowaniu();
+      var konto = znajdzKonto(KONFIG, login);
+      var token = null;
+      if (konto) { try { token = await odszyfrujToken(konto, haslo); } catch (e) { token = null; } }
+      else { await kluczZHasla(login, haslo, new Uint8Array(16), ITERACJE); } // ten sam czas odpowiedzi
+      if (!token) throw Object.assign(new Error("Nieprawidłowy login lub hasło."), { status: -1 });
+      $("#haslo").value = "";
+      pisz("localStorage", "sosw-admin-login", konto.login);
+      await uruchomZTokenem(token, konto.login);
     } catch (e) {
-      stan.sesja = null;
-      blad.textContent = komunikatBledu(e);
+      stan.token = null;
+      blad.textContent = e.status === -1 ? e.message
+        : e.status === 401 ? "Hasło jest poprawne, ale token GitHub wygasł albo został usunięty. Wykonaj ponownie „Pierwszą konfigurację” z nowym tokenem."
+        : komunikatBledu(e);
       blad.hidden = false;
-      $("#kod").value = ""; $("#kod").focus();
+      $("#haslo").focus();
     } finally {
       przycisk.disabled = false; przycisk.textContent = "Zaloguj się";
     }
   }
 
-  async function poZalogowaniu() {
-    await wczytajKonfiguracje();
-    if (!stan.branch) {
+  async function konfiguruj() {
+    var b = $("#blad-konfiguracji"), przycisk = $("#przycisk-konfiguracji");
+    b.hidden = true;
+    var token = $("#kfg-token").value.trim(), login = $("#kfg-login").value.trim().toLowerCase();
+    var h1 = $("#kfg-haslo").value, h2 = $("#kfg-haslo2").value;
+    var zle = !token ? "Wklej token GitHub." : !LOGIN_RE.test(login) ? "Login: 2–32 znaki — małe litery bez polskich znaków, cyfry, kropka, myślnik." :
+      h1.length < 8 ? "Hasło musi mieć co najmniej 8 znaków." : h1 !== h2 ? "Hasła nie są takie same." : "";
+    if (zle) { b.textContent = zle; b.hidden = false; return; }
+    if (KONFIG.konta.length && !(await potwierdz("Zastąpić obecne konta?", "W panelu są już konta (" + KONFIG.konta.map(function (k) { return k.login; }).join(", ") + "). Nowa konfiguracja je usunie.", "Zastąp konta"))) return;
+    stan.owner = $("#cfg-owner").value.trim() || stan.owner;
+    stan.repo = $("#cfg-repo").value.trim() || stan.repo;
+    stan.branch = $("#cfg-branch").value.trim();
+    przycisk.disabled = true; przycisk.textContent = "Sprawdzam token…";
+    try {
+      stan.token = token;
       var repo = await gh(repoSciezka(""));
-      stan.branch = repo.default_branch;
+      if (!repo.permissions || !repo.permissions.push) { var e = new Error(); e.status = 403; throw e; }
+      if (!stan.branch) stan.branch = repo.default_branch;
+      przycisk.textContent = "Szyfruję i zapisuję…";
+      var konto = await zaszyfrujToken(login, h1, token);
+      await zmienKonfiguracje("Panel: konfiguracja kont (" + login + ")", function () { return { konta: [konto] }; }, DO_SPRZATNIECIA);
+      ["#kfg-token", "#kfg-haslo", "#kfg-haslo2"].forEach(function (s) { $(s).value = ""; });
+      $("#login").value = login;
+      toast("Konfiguracja zapisana. Na innych urządzeniach logowanie zadziała za 1–2 minuty (po publikacji).", 9000);
+      await uruchomZTokenem(token, login);
+    } catch (err) {
+      stan.token = null;
+      b.textContent = komunikatBledu(err); b.hidden = false;
+    } finally {
+      przycisk.disabled = false; przycisk.textContent = "Zapisz konfigurację i zaloguj";
     }
-    $("#uzytkownik").textContent = "Zalogowano: " + stan.login;
-    await odswiez();
-    if (!location.hash || location.hash === "#") history.replaceState(null, "", "#aktualnosci");
-    ostatniHash = location.hash;
-    router();
-  }
-
-  function sesjaWygasla(komunikat) {
-    stan.sesja = null; stan.brudny = false;
-    pisz("sessionStorage", "sosw-admin-sesja", null);
-    var b = $("#blad-logowania");
-    b.textContent = komunikat || "Sesja wygasła. Zaloguj się ponownie.";
-    b.hidden = false;
-    pokazEkran("ekran-logowania");
   }
 
   function wyloguj() {
     if (stan.brudny && !confirm("Masz niezapisane zmiany. Na pewno wylogować?")) return;
-    stan.sesja = null; stan.brudny = false; stan.kluczAdmina = "";
+    stan.token = null; stan.brudny = false; stan.login = "";
     pisz("sessionStorage", "sosw-admin-sesja", null);
     history.replaceState(null, "", location.pathname);
     ostatniHash = "";
     $("#blad-logowania").hidden = true;
     pokazEkran("ekran-logowania");
-    $("#kod").focus();
+    $("#haslo").focus();
   }
 
-  /* ---------------- redaktorzy (klucz administratora) ---------------- */
-  function pokazRedaktorow() {
-    pokazEkran("ekran-redaktorzy");
-    $("#red-klucz-krok").hidden = !!stan.kluczAdmina;
-    $("#red-panel").hidden = !stan.kluczAdmina;
-    $("#red-wroc").textContent = stan.sesja ? "← Wróć do aktualności" : "← Wróć do logowania";
-    if (!API_PANELU) { var b = $("#blad-klucza"); b.textContent = "Najpierw skonfiguruj serwer panelu (instrukcja w _panel-serwer/INSTRUKCJA.md)."; b.hidden = false; return; }
-    if (stan.kluczAdmina) wczytajRedaktorow(); else $("#klucz-admina").focus();
+  /* ---------------- konta ---------------- */
+  function renderKonta() {
+    var el = $("#lista-kont");
+    el.innerHTML = KONFIG.konta.map(function (k) {
+      var ja = k.login === stan.login;
+      return "<li><b>" + esc(k.login) + (ja ? " (Ty)" : "") + "</b>" +
+        (ja ? "" : '<button type="button" class="btn a-obrys-czerwony a-maly" data-usun-konto="' + esc(k.login) + '">Usuń<span class="wizualnie-ukryte"> konto ' + esc(k.login) + "</span></button>") +
+        "<small>Utworzono: " + esc(k.utworzono || "—") + "</small></li>";
+    }).join("") || '<li class="a-pusto">Brak kont.</li>';
   }
-  function dataPl(iso) { if (!iso) return "nigdy"; var d = new Date(iso); return d.toLocaleDateString("pl-PL") + " " + d.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" }); }
-  async function wczytajRedaktorow() {
-    var el = $("#lista-redaktorow");
-    try {
-      var odp = await serwer("/admin/users", { sesja: false, klucz: stan.kluczAdmina });
-      var lista = odp.uzytkownicy.filter(function (u) { return u.aktywny; }).sort(function (a, b) { return a.login < b.login ? -1 : 1; });
-      el.innerHTML = lista.length ? lista.map(function (u) {
-        return "<li><b>" + esc(u.login) + "</b>" +
-          '<button type="button" class="btn a-obrys-czerwony a-maly" data-usun-redaktora="' + esc(u.login) + '">Usuń<span class="wizualnie-ukryte"> konto ' + esc(u.login) + "</span></button>" +
-          "<small>Ostatnie logowanie: " + esc(dataPl(u.ostatnieLogowanie)) + "</small></li>";
-      }).join("") : '<li class="a-pusto">Nie ma jeszcze żadnych redaktorów. Dodaj pierwsze konto w formularzu „Dodaj redaktora”.</li>';
-    } catch (e) {
-      if (e.status === 403 || e.status === 429) { stan.kluczAdmina = ""; pokazRedaktorow(); var b = $("#blad-klucza"); b.textContent = komunikatBledu(e); b.hidden = false; return; }
-      el.innerHTML = '<li class="a-pusto">' + esc(komunikatBledu(e)) + "</li>";
-    }
-  }
-  function pokazQr(dane) {
-    var qr = window.qrcode(0, "M");
-    qr.addData(dane.otpauth);
-    qr.make();
-    $("#qr-obraz").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
-    $("#qr-sekret").textContent = dane.sekret.replace(/(.{4})/g, "$1 ").trim();
-    $("#qr-login").textContent = dane.login;
-    $("#qr-krok").hidden = false;
-    $("#kod-potwierdz").value = "";
-    $("#blad-potwierdz").hidden = true;
-    $("#qr-krok").scrollIntoView({ block: "start" });
-    $("#kod-potwierdz").focus({ preventScroll: true });
-  }
-  function ukryjQr() {
-    $("#qr-krok").hidden = true;
-    $("#qr-obraz").innerHTML = ""; $("#qr-sekret").textContent = "";
+  async function pokazKonta() {
+    pokazEkran("ekran-konta");
+    renderKonta();
+    try { KONFIG = await konfiguracjaZRepo(stan.branch); renderKonta(); } catch (e) { /* lista z pliku strony */ }
   }
 
   async function odswiez() {
@@ -427,8 +499,9 @@
   function router() {
     $("#toast").hidden = true;
     var h = location.hash.replace(/^#/, "");
-    if (h === "redaktorzy") { pokazRedaktorow(); return; }
-    if (!stan.sesja) { pokazEkran("ekran-logowania"); return; }
+    if (h === "konfiguracja") { ustawFormularzLogowania(); pokazEkran("ekran-konfiguracji"); $("#kfg-token").focus(); return; }
+    if (!stan.token) { ustawFormularzLogowania(); pokazEkran("ekran-logowania"); return; }
+    if (h === "konto") { pokazKonta(); return; }
     if (h === "zdjecia") { pokazEkran("ekran-zdjec"); renderBiblioteka(); }
     else if (h === "nowy") { otworzEdytor(null); }
     else if (h.indexOf("edytuj/") === 0) { otworzEdytor(decodeURIComponent(h.slice(7))); }
@@ -448,7 +521,7 @@
     router();
   });
   window.addEventListener("beforeunload", function (e) {
-    if (stan.brudny || stan.zajety || !$("#qr-krok").hidden) { e.preventDefault(); e.returnValue = ""; }
+    if (stan.brudny || stan.zajety) { e.preventDefault(); e.returnValue = ""; }
   });
 
   /* ---------------- lista wpisów ---------------- */
@@ -853,68 +926,67 @@
 
     $("#form-logowania").addEventListener("submit", function (e) {
       e.preventDefault();
-      var login = $("#login").value.trim().toLowerCase(), kod = $("#kod").value.replace(/\s/g, "");
-      var b = $("#blad-logowania");
-      if (!login) { b.textContent = "Wpisz login."; b.hidden = false; $("#login").focus(); return; }
-      if (!/^\d{6}$/.test(kod)) { b.textContent = "Kod ma 6 cyfr — przepisz go z aplikacji Google Authenticator."; b.hidden = false; $("#kod").focus(); return; }
-      zaloguj(login, kod);
+      var l = $("#login").value.trim(), h = $("#haslo").value, b = $("#blad-logowania");
+      if (!l || !h) { b.textContent = "Wpisz login i hasło."; b.hidden = false; (l ? $("#haslo") : $("#login")).focus(); return; }
+      zalogujHaslem(l, h);
     });
-    // automatyczne wysłanie po wpisaniu 6 cyfr
-    $("#kod").addEventListener("input", function () {
-      var v = this.value.replace(/\D/g, "").slice(0, 6);
-      if (v !== this.value) this.value = v;
-      if (v.length === 6 && $("#login").value.trim()) $("#form-logowania").requestSubmit();
+    $$("[data-pokaz]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var pole = document.getElementById(btn.dataset.pokaz), pokaz = pole.type === "password";
+        pole.type = pokaz ? "text" : "password";
+        btn.textContent = pokaz ? "Ukryj" : "Pokaż";
+        btn.setAttribute("aria-pressed", String(pokaz));
+      });
     });
-    $("#red-wroc").addEventListener("click", function () {
-      if (!$("#qr-krok").hidden && !confirm("Konto nie zostało jeszcze potwierdzone. Wyjść?")) return;
-      ukryjQr();
-      location.hash = stan.sesja ? "aktualnosci" : "";
-      if (!stan.sesja) router();
+    $$("[data-wroc-logowanie]").forEach(function (btn) { btn.addEventListener("click", function () { location.hash = ""; router(); }); });
+    $("#form-konfiguracji").addEventListener("submit", function (e) { e.preventDefault(); konfiguruj(); });
+    [["#kfg-haslo", "#kfg-sila"], ["#zh-nowe", "#zh-sila"], ["#nk-haslo", "#nk-sila"]].forEach(function (p) {
+      $(p[0]).addEventListener("input", function () { $(p[1]).textContent = ocenHaslo(this.value); });
     });
-    $("#form-klucz").addEventListener("submit", async function (e) {
+    $("#form-zmiana-hasla").addEventListener("submit", async function (e) {
       e.preventDefault();
-      var k = $("#klucz-admina").value.trim(), b = $("#blad-klucza");
-      b.hidden = true;
-      if (!k) { b.textContent = "Wpisz klucz administratora."; b.hidden = false; return; }
+      var b = $("#blad-zmiany"); b.hidden = true;
+      var stare = $("#zh-stare").value, n1 = $("#zh-nowe").value, n2 = $("#zh-nowe2").value;
+      var zle = n1.length < 8 ? "Nowe hasło musi mieć co najmniej 8 znaków." : n1 !== n2 ? "Nowe hasła nie są takie same." : "";
+      if (zle) { b.textContent = zle; b.hidden = false; return; }
       try {
-        await serwer("/admin/users", { sesja: false, klucz: k });
-        stan.kluczAdmina = k; $("#klucz-admina").value = "";
-        pokazRedaktorow();
+        var konto = znajdzKonto(await konfiguracjaZRepo(stan.branch), stan.login);
+        var ok = false;
+        if (konto) { try { await odszyfrujToken(konto, stare); ok = true; } catch (er) { ok = false; } }
+        if (!ok) { b.textContent = "Obecne hasło jest nieprawidłowe."; b.hidden = false; return; }
+        var nowe = await zaszyfrujToken(stan.login, n1, stan.token);
+        nowe.utworzono = konto.utworzono || nowe.utworzono;
+        await zmienKonfiguracje("Panel: zmiana hasła (" + stan.login + ")", function (k) {
+          k.konta = k.konta.map(function (x) { return x.login === stan.login ? nowe : x; }); return k;
+        });
+        ["#zh-stare", "#zh-nowe", "#zh-nowe2"].forEach(function (s) { $(s).value = ""; }); $("#zh-sila").textContent = "";
+        toast("Hasło zmienione. Na innych urządzeniach nowe hasło zadziała za 1–2 minuty.", 8000);
       } catch (err) { b.textContent = komunikatBledu(err); b.hidden = false; }
     });
-    $("#form-nowy-redaktor").addEventListener("submit", async function (e) {
+    $("#form-nowe-konto").addEventListener("submit", async function (e) {
       e.preventDefault();
       var b = $("#blad-nowego"); b.hidden = true;
-      var login = $("#nowy-login").value.trim().toLowerCase();
-      if (!/^[a-z0-9][a-z0-9._-]{1,31}$/.test(login)) { b.textContent = "Login: 2–32 znaki — małe litery bez polskich znaków, cyfry, kropka, myślnik."; b.hidden = false; $("#nowy-login").focus(); return; }
+      var login = $("#nk-login").value.trim().toLowerCase(), h1 = $("#nk-haslo").value, h2 = $("#nk-haslo2").value;
+      var zle = !LOGIN_RE.test(login) ? "Login: 2–32 znaki — małe litery bez polskich znaków, cyfry, kropka, myślnik." :
+        znajdzKonto(KONFIG, login) ? "Takie konto już istnieje." : h1.length < 8 ? "Hasło musi mieć co najmniej 8 znaków." : h1 !== h2 ? "Hasła nie są takie same." : "";
+      if (zle) { b.textContent = zle; b.hidden = false; return; }
       try {
-        var d = await serwer("/admin/start", { method: "POST", sesja: false, klucz: stan.kluczAdmina, body: { login: login, nadpisz: $("#nadpisz").checked } });
-        pokazQr(d);
+        var konto = await zaszyfrujToken(login, h1, stan.token);
+        await zmienKonfiguracje("Panel: nowe konto (" + login + ")", function (k) {
+          k.konta = k.konta.filter(function (x) { return x.login !== login; }).concat([konto]); return k;
+        });
+        ["#nk-login", "#nk-haslo", "#nk-haslo2"].forEach(function (s) { $(s).value = ""; }); $("#nk-sila").textContent = "";
+        renderKonta();
+        toast("Dodano konto „" + esc(login) + "”. Zadziała za 1–2 minuty (po publikacji strony).", 8000);
       } catch (err) { b.textContent = komunikatBledu(err); b.hidden = false; }
     });
-    $("#kod-potwierdz").addEventListener("input", function () { var v = this.value.replace(/\D/g, "").slice(0, 6); if (v !== this.value) this.value = v; });
-    $("#form-potwierdz").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      var b = $("#blad-potwierdz"); b.hidden = true;
-      var login = $("#qr-login").textContent, kod = $("#kod-potwierdz").value;
-      if (!/^\d{6}$/.test(kod)) { b.textContent = "Wpisz 6-cyfrowy kod z aplikacji."; b.hidden = false; return; }
+    $("#lista-kont").addEventListener("click", async function (e) {
+      var u = e.target.closest("[data-usun-konto]"); if (!u) return;
+      var login = u.dataset.usunKonto;
+      if (!(await potwierdz("Usunąć konto?", "Osoba „" + login + "” nie będzie mogła się zalogować. Uwaga: zna ona token tylko w postaci zaszyfrowanej — jeśli chcesz mieć pewność, wymień też token GitHub.", "Usuń konto"))) return;
       try {
-        await serwer("/admin/potwierdz", { method: "POST", sesja: false, klucz: stan.kluczAdmina, body: { login: login, kod: kod } });
-        ukryjQr();
-        $("#nowy-login").value = ""; $("#nadpisz").checked = false;
-        toast("Konto „" + esc(login) + "” jest gotowe. Redaktor może się teraz zalogować loginem i kodem z aplikacji.", 9000);
-        wczytajRedaktorow();
-      } catch (err) { b.textContent = komunikatBledu(err); b.hidden = false; }
-    });
-    $("#lista-redaktorow").addEventListener("click", async function (e) {
-      var u = e.target.closest("[data-usun-redaktora]"); if (!u) return;
-      var login = u.dataset.usunRedaktora;
-      if (!(await potwierdz("Usunąć konto redaktora?", "Osoba „" + login + "” nie będzie mogła się już zalogować. Jej wpisy zostaną na stronie.", "Usuń konto"))) return;
-      try {
-        await serwer("/admin/usun", { method: "POST", sesja: false, klucz: stan.kluczAdmina, body: { login: login } });
-        toast("Usunięto konto „" + esc(login) + "”.");
-        wczytajRedaktorow();
-        if (stan.login === login) sesjaWygasla("Twoje konto zostało usunięte.");
+        await zmienKonfiguracje("Panel: usunięto konto (" + login + ")", function (k) { k.konta = k.konta.filter(function (x) { return x.login !== login; }); return k; });
+        renderKonta(); toast("Usunięto konto „" + esc(login) + "”.");
       } catch (err) { toast(esc(komunikatBledu(err)), 9000); }
     });
     $("#wyloguj").addEventListener("click", wyloguj);
@@ -980,16 +1052,17 @@
       });
     });
 
-    // przywrócenie sesji z tej karty przeglądarki
+    // przywrócenie sesji w tej karcie przeglądarki
     $("#login").value = czytaj("localStorage", "sosw-admin-login") || "";
-    var zapisana = null;
-    try { zapisana = JSON.parse(czytaj("sessionStorage", "sosw-admin-sesja")); } catch (e) { zapisana = null; }
-    if (API_PANELU && zapisana && zapisana.wygasa * 1000 > Date.now()) {
-      stan.sesja = zapisana.sesja; stan.login = zapisana.login;
-      poZalogowaniu().catch(function (e) { if (stan.sesja) sesjaWygasla(komunikatBledu(e)); });
+    var sesja = null;
+    try { sesja = JSON.parse(czytaj("sessionStorage", "sosw-admin-sesja")); } catch (e) { sesja = null; }
+    if (sesja && sesja.token) {
+      if (sesja.branch) stan.branch = sesja.branch;
+      uruchomZTokenem(sesja.token, sesja.login).catch(function () { stan.token = null; pisz("sessionStorage", "sosw-admin-sesja", null); router(); });
     } else {
+      if (!KONFIG.konta.length && !location.hash) location.hash = "konfiguracja";
       router();
-      if (location.hash !== "#redaktorzy") ($("#login").value ? $("#kod") : $("#login")).focus();
+      if (!location.hash || location.hash === "#") ($("#login").value ? $("#haslo") : $("#login")).focus();
     }
   }
 

@@ -28,15 +28,23 @@ Wpisy i zdjęcia dodaje się w panelu: **`https://<konto>.github.io/<repozytoriu
 - podgląd karty wpisu na żywo, przypomnienie o opisach zdjęć (dostępność),
 - każdy zapis to jeden commit w repozytorium — każdą zmianę można cofnąć w historii na GitHubie.
 
-**Logowanie: login + kod z Google Authenticator**
+**Logowanie: login i hasło**
 
-Redaktor loguje się swoim loginem i 6-cyfrowym kodem z aplikacji Google Authenticator. Konto zakłada administrator
-w panelu (**Jestem administratorem — zarządzaj redaktorami**): wpisuje klucz administratora i login, a redaktor skanuje
-wyświetlony kod QR telefonem. Sesja trwa 8 godzin.
+Strona działa bez serwera, dlatego hasło nie jest „sprawdzane” — **hasło odszyfrowuje token GitHub**, którym panel zapisuje
+zmiany. Zaszyfrowany token (AES-GCM, klucz z hasła: PBKDF2-SHA256, 600 000 iteracji) i loginy są w pliku
+`assets/js/admin-config.js`. Haseł nigdzie nie zapisujemy.
 
-Kody sprawdza mały serwer na Cloudflare (Worker, darmowy), który przechowuje też token GitHub — token nigdy nie trafia
-do przeglądarki. **Jednorazowa konfiguracja serwera: [`_panel-serwer/INSTRUKCJA.md`](_panel-serwer/INSTRUKCJA.md).**
-Dopóki serwer nie jest skonfigurowany, panel pokazuje komunikat z instrukcją.
+*Pierwsza konfiguracja (raz):* otwórz `admin.html` — panel sam pokaże ekran konfiguracji. Wklej token GitHub
+(fine-grained, tylko repozytorium strony, **Contents: Read and write** — link do formularza jest w panelu), wpisz login
+i hasło → **Zapisz konfigurację i zaloguj**. Panel zapisze konfigurację w repozytorium (i usunie pliki po wersji z Cloudflare).
+
+*Konta (zakładka „Konta”):* zmiana własnego hasła, dodawanie i usuwanie kont innych osób.
+Gdy token GitHub wygaśnie (po roku), wykonaj konfigurację ponownie z nowym tokenem (link na ekranie logowania).
+
+**Ważne o bezpieczeństwie:** plik z zaszyfrowanym tokenem jest publiczny, więc siła zabezpieczenia = siła hasła.
+Krótkie hasło (np. imię + cyfry) da się złamać programem na zwykłym komputerze. Używaj długich haseł
+(min. 14 znaków, najlepiej kilka przypadkowych słów). Jeśli podejrzewasz wyciek — usuń token na GitHubie
+(*Settings → Developer settings → Personal access tokens*) i wykonaj konfigurację z nowym tokenem.
 
 Po zapisaniu zmiany pojawiają się na stronie po ok. 1–2 minutach (tyle trwa publikacja GitHub Pages) — panel sam informuje, gdy wpis jest już widoczny.
 
@@ -85,11 +93,10 @@ aktualnosc.html?wpis=…     pojedynczy wpis
 dla-rodzicow.html, rekrutacja.html, projekty.html, dokumenty.html, kontakt.html
 deklaracja-dostepnosci.html, polityka-prywatnosci.html, 404.html
 assets/css/style.css       wygląd
-assets/js/                 skrypty i dane aktualności (aktualnosci-dane.js)
+assets/js/                 skrypty, dane aktualności (aktualnosci-dane.js), konta panelu (admin-config.js)
 admin.html                 panel administratora
 assets/fonts/              czcionki
 assets/img/                grafiki i zdjęcia
 dokumenty/                 pliki PDF do pobrania
 _narzedzia/                generator stron (Python)
-_panel-serwer/             serwer logowania panelu (Cloudflare Worker) + instrukcja
 ```

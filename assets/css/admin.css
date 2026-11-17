@@ -176,3 +176,7 @@ body.admin { background: var(--papier-3); min-height: 100vh; }
 .a-red-lista li:last-child { border-bottom: 0; }
 .a-red-lista b { font-family: var(--font-tytul); font-size: 1.1rem; margin-right: auto; }
 .a-red-lista small { color: var(--atrament-2); flex-basis: 100%; }
+.a-pomoc--wewn { margin: -.4rem 0 1.25rem; border-top: 0; padding-top: 0; }
+.a-logowanie__karta .uwaga { margin-top: 0; }
+#ekran-konta h3 { font-size: 1.1rem; margin-top: 1.5rem; }
+#ekran-konta h2 { font-size: 1.35rem; }

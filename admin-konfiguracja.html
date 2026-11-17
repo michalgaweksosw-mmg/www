@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://raw.githubusercontent.com; connect-src 'self' https://api.github.com; font-src 'self'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Konfiguracja panelu — SOSW w Ostrołęce</title>
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+<script src="assets/js/admin-config.js" defer></script>
+<script src="assets/js/admin.js" defer></script>
+</head>
+<body class="admin" data-tryb="konfiguracja">
+<header class="a-gora">
+  <div class="a-gora__marka">
+    <svg class="a-gora__znak" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><circle cx="100" cy="100" r="98" fill="#1d5a3b"/><g fill="#c4303a"><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(0 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(45 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(90 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(135 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(180 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(225 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(270 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(315 100 100)"/></g><circle cx="100" cy="100" r="32" fill="#f2b705"/><circle cx="100" cy="100" r="21" fill="#2c5fc4"/><circle cx="100" cy="100" r="11" fill="#c4303a"/></svg>
+    <span><b>Panel strony</b><small>SOSW w Ostrołęce</small></span>
+  </div>
+</header>
+<main id="widok" tabindex="-1">
+  <!-- ================= KONFIGURACJA (token + pierwsze konto) ================= -->
+  <section class="a-logowanie" id="ekran-konfiguracji" aria-labelledby="kfg-tytul">
+    <div class="a-karta a-logowanie__karta">
+      <a class="a-wstecz" href="admin.html">← Przejdź do logowania</a>
+      <h1 id="kfg-tytul">Konfiguracja panelu</h1>
+      <p>Jednorazowe połączenie panelu z repozytorium (powtarzane tylko, gdy token GitHub wygaśnie). Token zostanie zaszyfrowany hasłem i zapisany w repozytorium — potem w panelu logujesz się już tylko loginem i hasłem.</p>
+      <p class="uwaga" id="kfg-ostrzezenie" hidden>W panelu są już konta. Nowa konfiguracja <b>usunie wszystkie dotychczasowe konta</b> — pozostałe osoby trzeba będzie dodać ponownie.</p>
+      <form id="form-konfiguracji" novalidate>
+        <label class="a-pole">
+          <span>Token GitHub <em>Contents: Read and write, tylko repozytorium strony</em></span>
+          <span class="a-haslo"><input type="password" id="kfg-token" autocomplete="off" spellcheck="false" placeholder="github_pat_…" required><button type="button" class="a-link" data-pokaz="kfg-token" aria-pressed="false">Pokaż</button></span>
+        </label>
+        <details class="a-pomoc a-pomoc--wewn">
+          <summary>Jak utworzyć token?</summary>
+          <ol>
+            <li>Otwórz <a id="link-token" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">formularz nowego tokenu</a> (zalogowany na koncie właściciela repozytorium).</li>
+            <li><b>Repository access</b> → <b>Only select repositories</b> → repozytorium strony (<code id="nazwa-repo-pomoc">www</code>).</li>
+            <li><b>Repository permissions</b> → <b>Contents</b> → <b>Read and write</b>.</li>
+            <li><b>Generate token</b> → skopiuj i wklej powyżej.</li>
+          </ol>
+        </details>
+        <div class="a-wiersz">
+          <label class="a-pole"><span>Login</span><input id="kfg-login" autocapitalize="none" spellcheck="false" autocomplete="username" required></label>
+        </div>
+        <div class="a-wiersz">
+          <label class="a-pole"><span>Hasło</span><input type="password" id="kfg-haslo" autocomplete="new-password" required></label>
+          <label class="a-pole"><span>Powtórz hasło</span><input type="password" id="kfg-haslo2" autocomplete="new-password" required></label>
+        </div>
+        <p class="a-opis" id="kfg-sila"></p>
+        <details class="a-zaawansowane">
+          <summary>Repozytorium</summary>
+          <div class="a-wiersz">
+            <label class="a-pole"><span>Właściciel</span><input id="cfg-owner" spellcheck="false"></label>
+            <label class="a-pole"><span>Repozytorium</span><input id="cfg-repo" spellcheck="false"></label>
+            <label class="a-pole"><span>Gałąź</span><input id="cfg-branch" spellcheck="false" placeholder="domyślna"></label>
+          </div>
+        </details>
+        <p class="a-blad" id="blad-konfiguracji" role="alert" hidden></p>
+        <button class="btn btn--glowny" type="submit" id="przycisk-konfiguracji">Zapisz konfigurację</button>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- Potwierdzenie -->
+<dialog class="a-dialog a-dialog--maly" id="dialog-potwierdz" aria-labelledby="pot-tytul">
+  <form method="dialog">
+    <h2 id="pot-tytul">Na pewno?</h2>
+    <p id="pot-tresc"></p>
+    <label class="a-check" id="pot-opcja-wrap" hidden><input type="checkbox" id="pot-opcja"> <span id="pot-opcja-tekst"></span></label>
+    <div class="a-dialog__akcje">
+      <button class="btn btn--obrys" value="anuluj">Anuluj</button>
+      <button class="btn btn--glowny a-niebezpieczny" value="ok" id="pot-ok">Usuń</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="a-toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

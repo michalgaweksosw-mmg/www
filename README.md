@@ -34,12 +34,13 @@ Strona działa bez serwera, dlatego hasło nie jest „sprawdzane” — **hasł
 zmiany. Zaszyfrowany token (AES-GCM, klucz z hasła: PBKDF2-SHA256, 600 000 iteracji) i loginy są w pliku
 `assets/js/admin-config.js`. Haseł nigdzie nie zapisujemy.
 
-*Pierwsza konfiguracja (raz):* otwórz `admin.html` — panel sam pokaże ekran konfiguracji. Wklej token GitHub
-(fine-grained, tylko repozytorium strony, **Contents: Read and write** — link do formularza jest w panelu), wpisz login
-i hasło → **Zapisz konfigurację i zaloguj**. Panel zapisze konfigurację w repozytorium (i usunie pliki po wersji z Cloudflare).
+*Jednorazowa konfiguracja:* otwórz **`admin-konfiguracja.html`** (np. https://michalgaweksosw-mmg.github.io/www/admin-konfiguracja.html —
+strona celowo nie jest podlinkowana z panelu). Wklej token GitHub (fine-grained, tylko repozytorium strony,
+**Contents: Read and write** — instrukcja jest na stronie), wpisz login i hasło → **Zapisz konfigurację**.
+Od tej chwili w `admin.html` logujesz się już tylko loginem i hasłem.
 
 *Konta (zakładka „Konta”):* zmiana własnego hasła, dodawanie i usuwanie kont innych osób.
-Gdy token GitHub wygaśnie (po roku), wykonaj konfigurację ponownie z nowym tokenem (link na ekranie logowania).
+Gdy token GitHub wygaśnie (po roku), wykonaj ponownie konfigurację na `admin-konfiguracja.html` z nowym tokenem.
 
 **Ważne o bezpieczeństwie:** plik z zaszyfrowanym tokenem jest publiczny, więc siła zabezpieczenia = siła hasła.
 Krótkie hasło (np. imię + cyfry) da się złamać programem na zwykłym komputerze. Używaj długich haseł
@@ -94,7 +95,8 @@ dla-rodzicow.html, rekrutacja.html, projekty.html, dokumenty.html, kontakt.html
 deklaracja-dostepnosci.html, polityka-prywatnosci.html, 404.html
 assets/css/style.css       wygląd
 assets/js/                 skrypty, dane aktualności (aktualnosci-dane.js), konta panelu (admin-config.js)
-admin.html                 panel administratora
+admin.html                 panel administratora (login + hasło)
+admin-konfiguracja.html    jednorazowa konfiguracja panelu (token GitHub)
 assets/fonts/              czcionki
 assets/img/                grafiki i zdjęcia
 dokumenty/                 pliki PDF do pobrania

@@ -298,8 +298,8 @@
 
   /* ---------------- logowanie ---------------- */
   function pokazEkran(id) {
-    ["ekran-logowania", "ekran-konfiguracji", "ekran-konta", "ekran-aktualnosci", "ekran-edytora", "ekran-zdjec"].forEach(function (e) { $("#" + e).hidden = e !== id; });
-    var zalogowany = !!stan.token && id !== "ekran-logowania" && id !== "ekran-konfiguracji";
+    ["ekran-logowania", "ekran-konta", "ekran-aktualnosci", "ekran-edytora", "ekran-zdjec"].forEach(function (e) { $("#" + e).hidden = e !== id; });
+    var zalogowany = !!stan.token && id !== "ekran-logowania";
     $(".a-gora__zakladki").hidden = !zalogowany;
     $(".a-gora__konto").hidden = !zalogowany;
     $$(".a-gora__zakladki a").forEach(function (a) {
@@ -378,7 +378,7 @@
   }
 
   /* ---------------- logowanie ---------------- */
-  function ustawFormularzLogowania() {
+  function ustawKonfiguracje() {
     $("#cfg-owner").value = stan.owner;
     $("#cfg-repo").value = stan.repo;
     $("#cfg-branch").value = stan.branch;
@@ -386,7 +386,6 @@
     $("#link-token").href = "https://github.com/settings/personal-access-tokens/new?name=" +
       encodeURIComponent("Panel strony SOSW") + "&description=" + encodeURIComponent("Panel administratora strony " + stan.owner + "/" + stan.repo) +
       "&target_name=" + encodeURIComponent(stan.owner) + "&expires_in=365&contents=write";
-    $("#info-brak-kont").hidden = KONFIG.konta.length > 0;
     $("#kfg-ostrzezenie").hidden = KONFIG.konta.length === 0;
   }
 
@@ -400,7 +399,7 @@
     $("#uzytkownik").textContent = "Zalogowano: " + login;
     pisz("sessionStorage", "sosw-admin-sesja", JSON.stringify({ token: token, login: login, branch: stan.branch }));
     await odswiez();
-    if (!location.hash || /^#(konfiguracja)?$/.test(location.hash)) history.replaceState(null, "", "#aktualnosci");
+    if (!location.hash || location.hash === "#") history.replaceState(null, "", "#aktualnosci");
     ostatniHash = location.hash;
     router();
   }
@@ -414,14 +413,15 @@
       var token = null;
       if (konto) { try { token = await odszyfrujToken(konto, haslo); } catch (e) { token = null; } }
       else { await kluczZHasla(login, haslo, new Uint8Array(16), ITERACJE); } // ten sam czas odpowiedzi
-      if (!token) throw Object.assign(new Error("Nieprawidłowy login lub hasło."), { status: -1 });
+      if (!token) throw Object.assign(new Error(KONFIG.konta.length ? "Nieprawidłowy login lub hasło."
+        : "Panel nie ma jeszcze kont. Administrator musi raz wykonać konfigurację (strona admin-konfiguracja.html — opis w README)."), { status: -1 });
       $("#haslo").value = "";
       pisz("localStorage", "sosw-admin-login", konto.login);
       await uruchomZTokenem(token, konto.login);
     } catch (e) {
       stan.token = null;
       blad.textContent = e.status === -1 ? e.message
-        : e.status === 401 ? "Hasło jest poprawne, ale token GitHub wygasł albo został usunięty. Wykonaj ponownie „Pierwszą konfigurację” z nowym tokenem."
+        : e.status === 401 ? "Hasło jest poprawne, ale token GitHub wygasł albo został usunięty. Administrator musi ponownie wykonać konfigurację z nowym tokenem (admin-konfiguracja.html)."
         : komunikatBledu(e);
       blad.hidden = false;
       $("#haslo").focus();
@@ -452,14 +452,21 @@
       var konto = await zaszyfrujToken(login, h1, token);
       await zmienKonfiguracje("Panel: konfiguracja kont (" + login + ")", function () { return { konta: [konto] }; }, DO_SPRZATNIECIA);
       ["#kfg-token", "#kfg-haslo", "#kfg-haslo2"].forEach(function (s) { $(s).value = ""; });
-      $("#login").value = login;
-      toast("Konfiguracja zapisana. Na innych urządzeniach logowanie zadziała za 1–2 minuty (po publikacji).", 9000);
-      await uruchomZTokenem(token, login);
+      pisz("sessionStorage", "sosw-admin-sesja", JSON.stringify({ token: token, login: login, branch: stan.branch }));
+      pisz("localStorage", "sosw-admin-login", login);
+      $("#form-konfiguracji").hidden = true;
+      var ok = document.createElement("div");
+      ok.className = "uwaga"; ok.setAttribute("role", "status");
+      $("#form-konfiguracji").after(ok);
+      ok.innerHTML = "<p><strong>Gotowe.</strong> Konfiguracja zapisana — od teraz logujesz się w panelu loginem <b>" + esc(login) + "</b> i hasłem. Na innych urządzeniach logowanie zadziała po 1–2 minutach (publikacja strony).</p><p><a class=\"btn btn--glowny\" href=\"admin.html#aktualnosci\">Przejdź do panelu</a></p>";
+      ok.querySelector("a").focus();
+      stan.token = null;
+      return;
     } catch (err) {
       stan.token = null;
       b.textContent = komunikatBledu(err); b.hidden = false;
     } finally {
-      przycisk.disabled = false; przycisk.textContent = "Zapisz konfigurację i zaloguj";
+      przycisk.disabled = false; przycisk.textContent = "Zapisz konfigurację";
     }
   }
 
@@ -499,8 +506,7 @@
   function router() {
     $("#toast").hidden = true;
     var h = location.hash.replace(/^#/, "");
-    if (h === "konfiguracja") { ustawFormularzLogowania(); pokazEkran("ekran-konfiguracji"); $("#kfg-token").focus(); return; }
-    if (!stan.token) { ustawFormularzLogowania(); pokazEkran("ekran-logowania"); return; }
+    if (!stan.token) { pokazEkran("ekran-logowania"); return; }
     if (h === "konto") { pokazKonta(); return; }
     if (h === "zdjecia") { pokazEkran("ekran-zdjec"); renderBiblioteka(); }
     else if (h === "nowy") { otworzEdytor(null); }
@@ -920,16 +926,14 @@
   }
 
   /* ---------------- zdarzenia ---------------- */
-  function init() {
-    wypelnijJednostki();
-    ustawFormularzLogowania();
-
-    $("#form-logowania").addEventListener("submit", function (e) {
-      e.preventDefault();
-      var l = $("#login").value.trim(), h = $("#haslo").value, b = $("#blad-logowania");
-      if (!l || !h) { b.textContent = "Wpisz login i hasło."; b.hidden = false; (l ? $("#haslo") : $("#login")).focus(); return; }
-      zalogujHaslem(l, h);
-    });
+  function initKonfiguracja() {
+    ustawKonfiguracje();
+    bindPokazHaslo();
+    $("#form-konfiguracji").addEventListener("submit", function (e) { e.preventDefault(); konfiguruj(); });
+    $("#kfg-haslo").addEventListener("input", function () { $("#kfg-sila").textContent = ocenHaslo(this.value); });
+    $("#kfg-token").focus();
+  }
+  function bindPokazHaslo() {
     $$("[data-pokaz]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var pole = document.getElementById(btn.dataset.pokaz), pokaz = pole.type === "password";
@@ -938,9 +942,20 @@
         btn.setAttribute("aria-pressed", String(pokaz));
       });
     });
-    $$("[data-wroc-logowanie]").forEach(function (btn) { btn.addEventListener("click", function () { location.hash = ""; router(); }); });
-    $("#form-konfiguracji").addEventListener("submit", function (e) { e.preventDefault(); konfiguruj(); });
-    [["#kfg-haslo", "#kfg-sila"], ["#zh-nowe", "#zh-sila"], ["#nk-haslo", "#nk-sila"]].forEach(function (p) {
+  }
+
+  function init() {
+    if (document.body.dataset.tryb === "konfiguracja") { initKonfiguracja(); return; }
+    wypelnijJednostki();
+
+    $("#form-logowania").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var l = $("#login").value.trim(), h = $("#haslo").value, b = $("#blad-logowania");
+      if (!l || !h) { b.textContent = "Wpisz login i hasło."; b.hidden = false; (l ? $("#haslo") : $("#login")).focus(); return; }
+      zalogujHaslem(l, h);
+    });
+    bindPokazHaslo();
+    [["#zh-nowe", "#zh-sila"], ["#nk-haslo", "#nk-sila"]].forEach(function (p) {
       $(p[0]).addEventListener("input", function () { $(p[1]).textContent = ocenHaslo(this.value); });
     });
     $("#form-zmiana-hasla").addEventListener("submit", async function (e) {
@@ -1060,7 +1075,6 @@
       if (sesja.branch) stan.branch = sesja.branch;
       uruchomZTokenem(sesja.token, sesja.login).catch(function () { stan.token = null; pisz("sessionStorage", "sosw-admin-sesja", null); router(); });
     } else {
-      if (!KONFIG.konta.length && !location.hash) location.hash = "konfiguracja";
       router();
       if (!location.hash || location.hash === "#") ($("#login").value ? $("#haslo") : $("#login")).focus();
     }

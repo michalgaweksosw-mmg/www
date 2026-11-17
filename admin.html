@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://raw.githubusercontent.com; connect-src 'self' https://api.github.com; font-src 'self'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Panel administratora — SOSW w Ostrołęce</title>
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+<script src="assets/js/aktualnosci.js" defer></script>
+<script src="assets/js/admin.js" defer></script>
+</head>
+<body class="admin">
+<a class="przeskocz" href="#widok">Przejdź do treści</a>
+
+<header class="a-gora">
+  <div class="a-gora__marka">
+    <svg class="a-gora__znak" viewBox="0 0 200 200" aria-hidden="true" focusable="false"><circle cx="100" cy="100" r="98" fill="#1d5a3b"/><g fill="#c4303a"><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(0 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(45 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(90 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(135 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(180 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(225 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(270 100 100)"/><ellipse cx="100" cy="46" rx="16" ry="34" transform="rotate(315 100 100)"/></g><circle cx="100" cy="100" r="32" fill="#f2b705"/><circle cx="100" cy="100" r="21" fill="#2c5fc4"/><circle cx="100" cy="100" r="11" fill="#c4303a"/></svg>
+    <span><b>Panel strony</b><small>SOSW w Ostrołęce</small></span>
+  </div>
+  <nav class="a-gora__zakladki" aria-label="Sekcje panelu" hidden>
+    <a href="#aktualnosci" data-zakladka="aktualnosci">Aktualności</a>
+    <a href="#zdjecia" data-zakladka="zdjecia">Zdjęcia</a>
+  </nav>
+  <div class="a-gora__konto" hidden>
+    <a href="index.html" target="_blank" rel="noopener">Zobacz stronę</a>
+    <span class="a-gora__uzytkownik" id="uzytkownik"></span>
+    <button type="button" class="a-link" id="wyloguj">Wyloguj</button>
+  </div>
+</header>
+
+<main id="widok" tabindex="-1">
+
+  <!-- ================= LOGOWANIE ================= -->
+  <section class="a-logowanie" id="ekran-logowania" aria-labelledby="log-tytul">
+    <div class="a-karta a-logowanie__karta">
+      <h1 id="log-tytul">Zaloguj się do panelu</h1>
+      <p>Panel zapisuje wpisy i zdjęcia bezpośrednio w repozytorium strony na GitHubie. Do logowania potrzebny jest <strong>token dostępu</strong> — działa jak hasło tylko do tej strony.</p>
+
+      <form id="form-logowania" novalidate>
+        <label class="a-pole">
+          <span>Token dostępu GitHub</span>
+          <span class="a-haslo">
+            <input type="password" id="token" autocomplete="current-password" spellcheck="false" placeholder="github_pat_…" required>
+            <button type="button" class="a-link" id="pokaz-token" aria-pressed="false">Pokaż</button>
+          </span>
+        </label>
+        <label class="a-check"><input type="checkbox" id="zapamietaj"> Zapamiętaj na tym komputerze <small>(nie zaznaczaj na komputerze współdzielonym)</small></label>
+        <details class="a-zaawansowane">
+          <summary>Repozytorium</summary>
+          <div class="a-wiersz">
+            <label class="a-pole"><span>Właściciel</span><input id="cfg-owner" spellcheck="false"></label>
+            <label class="a-pole"><span>Repozytorium</span><input id="cfg-repo" spellcheck="false"></label>
+            <label class="a-pole"><span>Gałąź</span><input id="cfg-branch" spellcheck="false" placeholder="domyślna"></label>
+          </div>
+        </details>
+        <p class="a-blad" id="blad-logowania" role="alert" hidden></p>
+        <button class="btn btn--glowny" type="submit" id="przycisk-logowania">Zaloguj się</button>
+      </form>
+
+      <details class="a-pomoc">
+        <summary>Skąd wziąć token? (jednorazowo, ok. 2 minuty)</summary>
+        <ol>
+          <li>Zaloguj się na GitHubie na konto, które ma dostęp do repozytorium strony.</li>
+          <li>Otwórz <a id="link-token" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">formularz nowego tokenu</a> — nazwa i uprawnienie do zapisu wypełnią się same.</li>
+          <li>W sekcji <b>Repository access</b> wybierz <b>Only select repositories</b> i zaznacz repozytorium strony (<code id="nazwa-repo-pomoc">www</code>).</li>
+          <li>Sprawdź, że w <b>Permissions → Repository permissions</b> pozycja <b>Contents</b> ma wartość <b>Read and write</b>.</li>
+          <li>Kliknij <b>Generate token</b>, skopiuj token i wklej go powyżej. Zapisz go w bezpiecznym miejscu — GitHub pokazuje go tylko raz.</li>
+        </ol>
+        <p>Token jest wysyłany wyłącznie do GitHuba. Gdy wygaśnie albo wycieknie, usuń go na GitHubie i utwórz nowy.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ================= LISTA AKTUALNOŚCI ================= -->
+  <section class="a-sekcja" id="ekran-aktualnosci" aria-labelledby="akt-tytul" hidden>
+    <div class="a-pasek">
+      <h1 id="akt-tytul">Aktualności <span class="a-licznik" id="licznik-wpisow"></span></h1>
+      <div class="a-pasek__akcje">
+        <label class="a-szukaj"><span class="wizualnie-ukryte">Szukaj wpisu</span><input type="search" id="szukaj" placeholder="Szukaj wpisu…"></label>
+        <button type="button" class="btn btn--glowny" id="nowy-wpis">+ Nowy wpis</button>
+      </div>
+    </div>
+    <ul class="a-lista" id="lista-wpisow"><li class="a-pusto">Wczytywanie…</li></ul>
+  </section>
+
+  <!-- ================= EDYTOR WPISU ================= -->
+  <section class="a-sekcja" id="ekran-edytora" aria-labelledby="ed-tytul" hidden>
+    <div class="a-pasek">
+      <div>
+        <button type="button" class="a-link a-wstecz" id="wroc">← Wróć do listy</button>
+        <h1 id="ed-tytul">Nowy wpis</h1>
+      </div>
+    </div>
+
+    <form class="a-edytor" id="form-wpisu" novalidate>
+      <div class="a-edytor__pola">
+        <label class="a-pole"><span>Tytuł <em>wymagane</em></span><input id="f-tytul" required maxlength="160"></label>
+        <div class="a-wiersz">
+          <label class="a-pole"><span>Data</span><input type="date" id="f-data" required></label>
+          <label class="a-pole"><span>Jednostka</span><select id="f-jednostka"></select></label>
+        </div>
+        <label class="a-pole"><span>Zajawka <em>1–2 zdania na liście wpisów</em></span><textarea id="f-zajawka" rows="2" maxlength="300"></textarea><small class="a-licznik-znakow" id="licznik-zajawki"></small></label>
+        <label class="a-pole"><span>Treść <em>akapity oddzielaj pustą linią</em></span><textarea id="f-tresc" rows="10"></textarea></label>
+
+        <fieldset class="a-zdjecia">
+          <legend>Zdjęcia</legend>
+          <p class="a-opis">Zdjęcia JPEG i PNG są automatycznie zmniejszane i zamieniane na WebP. Pierwsze zdjęcie jest zdjęciem głównym. Publikuj tylko zdjęcia dzieci, których rodzice wyrazili zgodę.</p>
+          <div class="a-upuszczanie" id="upuszczanie-wpis">
+            <p><b>Przeciągnij zdjęcia tutaj</b> albo</p>
+            <div class="a-upuszczanie__przyciski">
+              <label class="btn btn--obrys a-plik">Wybierz z dysku<input type="file" id="pliki-wpis" accept="image/jpeg,image/png,image/webp" multiple></label>
+              <button type="button" class="btn btn--obrys" id="z-biblioteki">Wybierz z biblioteki</button>
+            </div>
+          </div>
+          <ul class="a-zdjecia__lista" id="zdjecia-wpisu"></ul>
+        </fieldset>
+      </div>
+
+      <aside class="a-edytor__podglad" aria-labelledby="podglad-tytul">
+        <h2 id="podglad-tytul">Podgląd na liście</h2>
+        <ul class="siatka-wpisow a-podglad" id="podglad"></ul>
+        <div class="a-uwagi" id="uwagi" aria-live="polite"></div>
+      </aside>
+
+      <div class="a-dol">
+        <p class="a-status" id="status-wpisu" role="status" aria-live="polite"></p>
+        <button type="submit" class="btn btn--glowny" id="zapisz">Zapisz i opublikuj</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ================= ZDJĘCIA (BIBLIOTEKA) ================= -->
+  <section class="a-sekcja" id="ekran-zdjec" aria-labelledby="zd-tytul" hidden>
+    <div class="a-pasek">
+      <h1 id="zd-tytul">Zdjęcia <span class="a-licznik" id="licznik-zdjec"></span></h1>
+    </div>
+    <div class="a-upuszczanie a-upuszczanie--duze" id="upuszczanie-biblioteka">
+      <p><b>Przeciągnij zdjęcia tutaj</b>, żeby dodać je do biblioteki. Zostaną zamienione na WebP i będzie można dołączyć je do wpisów.</p>
+      <label class="btn btn--glowny a-plik">Wybierz zdjęcia z dysku<input type="file" id="pliki-biblioteka" accept="image/jpeg,image/png,image/webp" multiple></label>
+    </div>
+    <p class="a-status" id="status-biblioteki" role="status" aria-live="polite"></p>
+
+    <details class="a-zaawansowane a-ustawienia">
+      <summary>Ustawienia konwersji zdjęć</summary>
+      <div class="a-wiersz">
+        <label class="a-pole"><span>Najdłuższy bok zdjęcia (px)</span><input type="number" id="ust-bok" min="800" max="4000" step="100"></label>
+        <label class="a-pole"><span>Jakość WebP (%)</span><input type="number" id="ust-jakosc" min="50" max="100" step="1"></label>
+        <label class="a-pole"><span>Miniatura (px)</span><input type="number" id="ust-min" min="300" max="1200" step="50"></label>
+      </div>
+    </details>
+
+    <ul class="a-biblioteka" id="biblioteka"><li class="a-pusto">Wczytywanie…</li></ul>
+  </section>
+</main>
+
+<!-- Wybór zdjęć z biblioteki -->
+<dialog class="a-dialog" id="dialog-biblioteka" aria-labelledby="dlg-tytul">
+  <form method="dialog">
+    <h2 id="dlg-tytul">Wybierz zdjęcia z biblioteki</h2>
+    <ul class="a-biblioteka a-biblioteka--wybor" id="dlg-lista"></ul>
+    <div class="a-dialog__akcje">
+      <button class="btn btn--obrys" value="anuluj">Anuluj</button>
+      <button class="btn btn--glowny" value="ok" id="dlg-ok">Dodaj zaznaczone</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Potwierdzenie -->
+<dialog class="a-dialog a-dialog--maly" id="dialog-potwierdz" aria-labelledby="pot-tytul">
+  <form method="dialog">
+    <h2 id="pot-tytul">Na pewno?</h2>
+    <p id="pot-tresc"></p>
+    <label class="a-check" id="pot-opcja-wrap" hidden><input type="checkbox" id="pot-opcja"> <span id="pot-opcja-tekst"></span></label>
+    <div class="a-dialog__akcje">
+      <button class="btn btn--obrys" value="anuluj">Anuluj</button>
+      <button class="btn btn--glowny a-niebezpieczny" value="ok" id="pot-ok">Usuń</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="a-toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

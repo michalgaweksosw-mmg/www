@@ -14,17 +14,38 @@ Statyczna strona (HTML + CSS + odrobina JavaScriptu) — działa na GitHub Pages
 
 Stronę można też otworzyć lokalnie — wystarczy dwukrotnie kliknąć `index.html`.
 
-## Jak dodać aktualność (bez programowania)
+## Panel administratora — `admin.html`
 
-Wszystkie wpisy są w jednym pliku: **`assets/js/aktualnosci-dane.js`**.
+Wpisy i zdjęcia dodaje się w panelu: **`https://<konto>.github.io/<repozytorium>/admin.html`**
+(dla obecnej strony: https://michalgaweksosw-mmg.github.io/www/admin.html).
 
-1. Na GitHubie otwórz ten plik i kliknij ikonę ołówka (Edit).
-2. Skopiuj jeden z istniejących bloków `{ ... },` i wklej go na początku listy.
-3. Zmień `id`, `tytul`, `data`, `jednostka`, `zajawka` i `tresc` (instrukcja jest na górze pliku).
-4. Zdjęcia wgraj do folderu `assets/img/aktualnosci/` (przycisk **Add file → Upload files**) i wpisz ich ścieżki w polach `zdjecie` / `galeria`. Pamiętaj o krótkim opisie zdjęcia (`opisZdjecia`, `alt`) — to wymóg dostępności.
-5. Kliknij **Commit changes**. Wpis pojawi się na stronie głównej i w Aktualnościach po ok. minucie.
+**Co potrafi panel**
+- dodawanie, edycja i usuwanie aktualności (tytuł, data, jednostka, zajawka, treść, zdjęcia),
+- zdjęcia: przeciągnij albo wybierz z dysku — **JPEG i PNG są automatycznie zamieniane na WebP** w przeglądarce
+  (zmniejszenie do 1920 px + miniatura 800 px, jakość 82%; ustawienia w zakładce „Zdjęcia”),
+- obrót zdjęć z telefonu jest poprawiany automatycznie, a dane EXIF (w tym lokalizacja GPS) są usuwane,
+- biblioteka zdjęć: podgląd wszystkich zdjęć, informacja, w którym wpisie są użyte, usuwanie nieużywanych,
+- podgląd karty wpisu na żywo, przypomnienie o opisach zdjęć (dostępność),
+- każdy zapis to jeden commit w repozytorium — każdą zmianę można cofnąć w historii na GitHubie.
 
-Wpis bez zdjęcia dostaje automatycznie kolorową okładkę w stylu wycinanki.
+**Logowanie — token GitHub (jednorazowo)**
+1. Zaloguj się na GitHubie na konto z dostępem do repozytorium.
+2. W panelu kliknij „Skąd wziąć token?” → link „formularz nowego tokenu” (nazwa i uprawnienie wypełnią się same).
+3. *Repository access* → **Only select repositories** → wybierz repozytorium strony.
+4. *Repository permissions* → **Contents: Read and write** (nic więcej nie jest potrzebne).
+5. **Generate token**, skopiuj i wklej w panelu.
+
+Token działa jak hasło — nie wysyłaj go mailem. Każda osoba redagująca stronę powinna mieć własne konto GitHub
+(dodane jako współpracownik repozytorium: *Settings → Collaborators*) i własny token. Token wygasa po roku — wtedy utwórz nowy.
+
+**Bezpieczeństwo:** sama strona `admin.html` jest publiczna, ale bez ważnego tokenu nic nie da się w niej zrobić.
+Token jest przechowywany tylko w przeglądarce (do zamknięcia karty albo — po zaznaczeniu „Zapamiętaj” — na stałe na tym komputerze)
+i wysyłany wyłącznie do api.github.com. Panel nie jest indeksowany przez wyszukiwarki.
+
+Po zapisaniu zmiany pojawiają się na stronie po ok. 1–2 minutach (tyle trwa publikacja GitHub Pages) — panel sam informuje, gdy wpis jest już widoczny.
+
+**Ręczna edycja** pliku `assets/js/aktualnosci-dane.js` nadal jest możliwa, ale trzeba zachować format JSON
+i znaczniki `/*DANE-START*/` / `/*DANE-KONIEC*/` (opis na górze pliku).
 
 ## Jak zmienić treść podstron, menu albo dane kontaktowe
 
@@ -68,7 +89,8 @@ aktualnosc.html?wpis=…     pojedynczy wpis
 dla-rodzicow.html, rekrutacja.html, projekty.html, dokumenty.html, kontakt.html
 deklaracja-dostepnosci.html, polityka-prywatnosci.html, 404.html
 assets/css/style.css       wygląd
-assets/js/                 skrypty i dane aktualności
+assets/js/                 skrypty i dane aktualności (aktualnosci-dane.js)
+admin.html                 panel administratora
 assets/fonts/              czcionki
 assets/img/                grafiki i zdjęcia
 dokumenty/                 pliki PDF do pobrania

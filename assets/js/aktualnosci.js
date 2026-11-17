@@ -2,7 +2,14 @@
 (function () {
   "use strict";
   var WPISY = (window.SOSW_AKTUALNOSCI || []).slice().sort(function (a, b) { return a.data < b.data ? 1 : -1; });
-  var JEDN = window.SOSW_JEDNOSTKI || {};
+  var JEDN = window.SOSW_JEDNOSTKI || {
+    osrodek:     { nazwa: "Ośrodek",                          kolor: "#1d5a3b" },
+    przedszkole: { nazwa: "Przedszkole",                      kolor: "#f2b705" },
+    sp:          { nazwa: "Szkoła Podstawowa",                kolor: "#2e7a50" },
+    branzowa:    { nazwa: "Szkoła Branżowa",                  kolor: "#c4303a" },
+    spdp:        { nazwa: "Szkoła Przysposabiająca do Pracy", kolor: "#2c5fc4" },
+    internat:    { nazwa: "Internat",                         kolor: "#6d48a6" }
+  };
   var MIESIACE = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
   var MIES_KROTKO = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
 
@@ -54,10 +61,11 @@
       '<path d="M0 250 V232' + " q10 -12 20 0".repeat(20) + 'V250Z" fill="' + wyc + '"/>' +
       "</svg>";
   }
-  function okladka(w, eager) {
+  function okladka(w, duza) {
     var j = jednostka(w);
     if (w.zdjecie) {
-      return '<div class="okladka" style="--k:' + j.kolor + '"><img src="' + esc(w.zdjecie) + '" alt="' + esc(w.opisZdjecia || "") + '"' + (eager ? "" : ' loading="lazy"') + "></div>";
+      var src = duza ? w.zdjecie : (w.miniatura || w.zdjecie);
+      return '<div class="okladka" style="--k:' + j.kolor + '"><img src="' + esc(src) + '" alt="' + esc(w.opisZdjecia || "") + '"' + (duza ? "" : ' loading="lazy"') + ' decoding="async"></div>';
     }
     return '<div class="okladka" style="--k:' + j.kolor + '">' + okladkaSvg(w) + "</div>";
   }
@@ -69,6 +77,9 @@
     var c = czesci(w.data), j = jednostka(w);
     return '<li><a href="' + link(w) + '"><span class="kalendarzyk" style="--k:' + j.kolor + '" aria-hidden="true"><b>' + c.d + "</b><small>" + MIES_KROTKO[c.m] + " " + c.r + '</small></span><span><span class="wizualnie-ukryte">' + dataDluga(w.data) + ", " + esc(j.nazwa) + ": </span><h3>" + esc(w.tytul) + "</h3><p>" + esc(w.zajawka) + "</p></span></a></li>";
   }
+
+  /* Udostępnione dla panelu administratora (podgląd) */
+  window.SOSW_AKT = { okladka: okladka, meta: meta, jednostki: JEDN };
 
   /* --- Strona główna --- */
   var glowna = document.getElementById("aktualnosci-glowna");
@@ -125,7 +136,7 @@
     document.getElementById("wpis-meta").innerHTML = meta(w);
     var tresc = (w.tresc || []).map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("");
     var galeria = (w.galeria || []).length
-      ? '<h2 class="wizualnie-ukryte">Galeria zdjęć</h2><ul class="wpis__galeria">' + w.galeria.map(function (z) { return '<li><a href="' + esc(z.src) + '"><img src="' + esc(z.src) + '" alt="' + esc(z.alt || "") + '" loading="lazy"></a></li>'; }).join("") + "</ul>"
+      ? '<h2 class="wizualnie-ukryte">Galeria zdjęć</h2><ul class="wpis__galeria">' + w.galeria.map(function (z) { return '<li><a href="' + esc(z.src) + '"><img src="' + esc(z.min || z.src) + '" alt="' + esc(z.alt || "") + '" loading="lazy" decoding="async"></a></li>'; }).join("") + "</ul>"
       : "";
     var idx = WPISY.indexOf(w);
     var nawig = '<nav aria-label="Inne wpisy" class="rekrutacja-pas__akcje">' +
